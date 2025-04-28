@@ -1,0 +1,90 @@
+/* src/assets/main.css */
+@import 'tailwindcss';
+
+@theme {
+  /* ... ваши цвета ... */
+  --color-primary: #3a4c55;
+  --color-secondary: #263238;
+  --color-myyellow: #ffb300;
+  --color-myyeldarker: #d89e18;
+  --color-myred: #c64242;
+  --color-myreddarker: #962b2b;
+  --color-text-light: #ffffff;
+  --color-text-muted: #a0a0a0;
+
+  /* --- Шрифты --- */
+  /* Шрифт для основного текста (мелкий) */
+  --font-poppins: 'Poppins', sans-serif;
+  /* Шрифт для заголовков (крупный) */
+  --font-display: 'Jaro', sans-serif;
+  /* Определяем дефолтный sans-serif шрифт как Poppins */
+
+  /* ... остальные переменные ... */
+}
+
+@layer utilities {
+  .dynamic-text {
+    font-size: min(2vw, 25px);
+  }
+  .fluid-space-x {
+    --space-value: min(2vw, 20px);
+  }
+  .fluid-space-x > * + * {
+    margin-left: var(--space-value);
+  }
+  .mobile-jaro {
+    font-family: var(--font-display);
+  }
+  .footer-text {
+    @apply font-poppins text-sm text-[var(--color-text-muted)] hover:text-[var(--color-myyellow)] transition-colors;
+  }
+  .login-button.router-link-exact-active {
+    @apply text-[var(--color-myyellow)] cursor-default;
+    @apply hover:bg-[var(--color-myreddarker)]; 
+  }
+  .login-button{
+    @apply bg-[var(--color-myred)] text-[var(--color-primary)] px-4 py-1 rounded-[0.7vw] hover:text-[var(--color-myyellow)] transition-colors
+  }
+  .signup-button.router-link-exact-active {
+    @apply bg-[var(--color-myyellow)] text-[var(--color-myred)] cursor-default;
+     /* Убираем hover эффект для активной кнопки */
+     @apply hover:bg-[var(--color-myyeldarker)]; 
+    }
+  
+  /* Стиль для основных ссылок навигации (Home, Tournaments...) */
+  /* Селектор может потребовать уточнения, если структура сложнее */
+  /* nav > div > div:first-child a.router-link-exact-active { */
+  /* Если вы хотите оставить желтый цвет для активных основных ссылок: */
+  .fluid-nav-link.router-link-exact-active {
+     color: var(--color-myyellow);
+  }
+}
+@layer base {
+  body {
+    /* Применяем дефолтный шрифт (Poppins) ко всему тексту */
+    @apply bg-[var(--color-secondary)] text-[var(--color-text-light)];
+  }
+  /* Можно задать шрифт Jaro для заголовков по умолчанию */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    @apply font-normal text-[var(--color-myyellow)];
+  }
+  p,
+  label,
+  input {
+    @apply font-poppins text-[var(--color-text-muted)];
+  }
+  header nav a {
+    /* Применяем шрифт Jaro ко всем элементам навигации */
+    font-family: var(--font-display);
+  }
+  .fluid-nav-link {
+    @apply text-[var(--color-text-light)] hover:text-[var(--color-myred)] transition-colors;
+  }
+}
+/* ... остальной код main.css ... */
