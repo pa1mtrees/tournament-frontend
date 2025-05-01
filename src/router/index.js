@@ -21,6 +21,13 @@ const router = createRouter({
       component: () => import('../views/Setting.vue'), 
       meta: { requiresAuth: true } 
     },
+    {
+      path: '/users/:id', // Динамический параметр :id
+      name: 'user-profile',
+      component: () => import('../views/UserProfileView.vue'), // НУЖНО СОЗДАТЬ ЭТОТ КОМПОНЕНТ
+      props: true // Передавать :id как пропс в компонент
+      // meta: { requiresAuth: true } // Возможно, просмотр тоже требует входа?
+    }
     // ... другие маршруты ...
   ],
 })
