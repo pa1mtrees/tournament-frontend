@@ -6,50 +6,52 @@ import apiClient from '@/services/apiClient';
 import { jwtDecode } from 'jwt-decode'; 
 
 export const useAuthStore = defineStore('auth', () => {
-  // Загружаем user из localStorage целиком
-  const storedUser = JSON.parse(localStorage.getItem('authUser') || 'null');
+  const storedUserJson = localStorage.getItem('authUser');
+  const initialUser = storedUserJson ? JSON.parse(storedUserJson) : null;
 
   const isLoggedIn = ref(localStorage.getItem('authToken') ? true : false); 
-  const user = ref(storedUser); // Инициализируем user из localStorage
-  // Аватар берем из сохраненного юзера или генерируем
-  const avatarUrl = ref(storedUser?.avatarUrl || (storedUser?.username ? `https://api.dicebear.com/8.x/identicon/svg?seed=${storedUser.username}` : null)); 
+  const user = ref(initialUser); // Инициализируем user из localStorage
+  // Аватар генерируем по email или ID, если нет avatarUrl или username
+  const avatarUrl = ref(initialUser?.avatarUrl || (initialUser?.email ? `https://api.dicebear.com/8.x/identicon/svg?seed=${initialUser.email}` : null)); 
   const token = ref(localStorage.getItem('authToken') || null); 
 
   const isAuthenticated = computed(() => isLoggedIn.value);
-  const username = computed(() => user.value?.username || null); // Должен быть в ответе /users/{id}
+  // username теперь нет, можно убрать геттер или использовать nickname/first_name
+  const displayName = computed(() => user.value?.nickname || user.value?.first_name || null); // Пример для отображения имени
   const userAvatar = computed(() => avatarUrl.value);
   const userEmail = computed(() => user.value?.email || null);
-  // Геттер для роли (если нужна)
+  // Исправляем case полей
   const userRole = computed(() => user.value?.role || null); 
-  // Геттер для ID (если нужен)
   const userId = computed(() => user.value?.id || null); 
 
-  async function fetchUser(userId) {
+  async function fetchUser(userIdToFetch) { // Переименовал параметр во избежание путаницы с computed userId
     try {
-      // Запрос к GET /users/{id}
-      const response = await apiClient.get(`/users/${userId}`); 
-      const receivedUser = response.data; 
+      const response = await apiClient.get(`/users/${userIdToFetch}`); 
+      // --- ИСПРАВЛЕНИЕ 1: Сохраняем вложенный объект 'user' ---
+      const receivedUser = response.data.user; // Берем данные из response.data.user
+      // ----------------------------------------------------
       
-      // Сохраняем ПОЛНЫЙ объект пользователя
-      user.value = receivedUser; 
-      // Обновляем аватар (из ответа бэка или генерируем)
-      avatarUrl.value = receivedUser?.avatarUrl || `https://api.dicebear.com/8.x/identicon/svg?seed=${receivedUser.username}`; // Убедитесь, что username возвращается
-      
-      // Сохраняем актуальные данные пользователя в localStorage
-      localStorage.setItem('authUser', JSON.stringify(receivedUser)); 
+      if (!receivedUser) { // Добавим проверку, что данные пользователя пришли
+         throw new Error('User data not found in API response');
+      }
 
+      user.value = receivedUser; // Сохраняем корректный объект
+      
+      // --- ИСПРАВЛЕНИЕ 2: Генерируем аватар по email или ID, если нет avatarUrl ---
+      avatarUrl.value = receivedUser.avatarUrl || `https://api.dicebear.com/8.x/identicon/svg?seed=${receivedUser.email || receivedUser.id}`; 
+      // --------------------------------------------------------------------
+      
+      localStorage.setItem('authUser', JSON.stringify(receivedUser)); 
       console.log('User data fetched/updated:', user.value);
       return user.value; 
     } catch (error) {
       console.error('Failed to fetch user data:', error.response?.data || error.message);
-      // При ошибке загрузки данных - выходим из системы
       logoutAction(false); 
       return null;
     }
   }
 
   async function login(credentials) {
-     // ... (Логика получения токена и userId без изменений) ...
     try {
       const response = await apiClient.post('/users/signin', {
         email: credentials.email,     
@@ -58,35 +60,36 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (response.data && response.data.token) {
         const receivedToken = response.data.token;
-        let userId = response.data.userId; 
+        let userIdFromToken; // Переименовали для ясности
 
         localStorage.setItem('authToken', receivedToken);
         token.value = receivedToken; 
 
-        if (!userId) {
-          try {
-            const decodedToken = jwtDecode(receivedToken);
-            userId = decodedToken.id; 
-            if (!userId) throw new Error('User ID (id) not found in token');
-          } catch (decodeError) {
-            console.error('Failed to decode token:', decodeError);
-            logoutAction(false); 
-            return { success: false, message: 'Invalid token received.' };
-          }
+        // Декодируем токен
+        try {
+          const decodedToken = jwtDecode(receivedToken);
+          // --- ИСПРАВЛЕНИЕ 3: Используем user_id ---
+          userIdFromToken = decodedToken.user_id; 
+          // -------------------------------------
+          if (!userIdFromToken) throw new Error('User ID (user_id) not found in token');
+        } catch (decodeError) {
+          console.error('Failed to decode token:', decodeError);
+          logoutAction(false); 
+          return { success: false, message: 'Invalid token received.' };
         }
-
-        // Запрашиваем данные пользователя ПОСЛЕ получения токена
-        const fetchedUser = await fetchUser(userId); 
+        
+        // Запрашиваем данные пользователя по ID из токена
+        const fetchedUser = await fetchUser(userIdFromToken); 
 
         if (fetchedUser) {
-          isLoggedIn.value = true; // Устанавливаем статус входа
-          console.log('Login successful for:', fetchedUser.username);
+          isLoggedIn.value = true; 
+          console.log('Login successful for:', fetchedUser.email); // Логируем email
           router.push('/'); 
           return { success: true };
         } else {
-          // Не удалось получить данные пользователя, но токен есть? logoutAction уже вызван
           return { success: false, message: 'Login successful, but failed to fetch user data.' };
         }
+
       } else {
         throw new Error('Token not found in login response');
       }
@@ -97,36 +100,64 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // --- Register Action (без изменений) ---
-   async function register(userData) { /* ... */ }
+  async function register(userData) { /* ... как раньше ... */ }
 
-  // --- Logout Action (без изменений) ---
-   function logoutAction(shouldRedirect = true) { /* ... */ }
+  function logoutAction(shouldRedirect = true) { /* ... как раньше ... */ }
 
-   // --- Check Auth On Load ---
-   // Логика остается прежней: если есть токен, декодируем, получаем ID, вызываем fetchUser
-   async function checkAuthOnLoad() {
-     const storedToken = localStorage.getItem('authToken');
-     const storedUserJson = localStorage.getItem('authUser'); // Прочитаем сохраненного юзера
+  async function checkAuthOnLoad() {
+    const storedToken = localStorage.getItem('authToken');
+    const storedUserJson = localStorage.getItem('authUser'); // Загружаем сохраненного пользователя
 
-     if (storedToken && storedUserJson) {
-       token.value = storedToken; 
-       user.value = JSON.parse(storedUserJson); // Восстанавливаем юзера
-       avatarUrl.value = user.value?.avatarUrl || `https://api.dicebear.com/8.x/identicon/svg?seed=${user.value.username}`; // Восстанавливаем аватар
-       isLoggedIn.value = true; // Считаем залогиненным
-       console.log('Auth restored from localStorage.');
-       // Опционально: можно добавить фоновую проверку токена / обновление данных пользователя
-       // fetchUser(user.value.id); 
-     } else {
-       logoutAction(false); // Если чего-то нет, считаем разлогиненным
-     }
-   }
+     if (storedToken) { // Доверяем только токену для определения статуса входа
+      token.value = storedToken; 
+       let userIdFromToken;
+       let seedForAvatar;
+       let userRoleFromToken = null;
+       let userEmailFromStorage = storedUserJson ? JSON.parse(storedUserJson)?.email : null; // Email из хранилища для аватара
+       
+       try {
+         const decodedToken = jwtDecode(storedToken);
+         // --- ИСПРАВЛЕНИЕ 3: Используем user_id ---
+         userIdFromToken = decodedToken.user_id; 
+         // -------------------------------------
+         userRoleFromToken = decodedToken.role || null; // Роль из токена
+
+         if (!userIdFromToken) throw new Error('User ID (user_id) not found in token');
+
+         // Устанавливаем базовое состояние ДО загрузки данных
+         isLoggedIn.value = true; 
+         userId.value = userIdFromToken;
+         userEmail.value = userEmailFromStorage; // Временно ставим email из хранилища
+         // Генерируем аватар по email из хранилища или ID
+         avatarUrl.value = `https://api.dicebear.com/8.x/identicon/svg?seed=${userEmailFromStorage || userIdFromToken}`;
+         // Временно ставим минимальные данные пользователя для проверки роли
+         user.value = { id: userIdFromToken, role: userRoleFromToken, email: userEmailFromStorage }; 
+         
+         console.log('Auth token found, attempting to fetch user data...');
+         // Пытаемся обновить данные пользователя с сервера
+         await fetchUser(userIdFromToken); 
+         // Если fetchUser не удастся, logoutAction сбросит isLoggedIn
+
+       } catch (decodeError) {
+          console.error('Failed to decode stored token:', decodeError);
+          logoutAction(false); 
+       }
+    } else {
+       logoutAction(false); 
+    }
+  }
   
   checkAuthOnLoad(); 
 
   return { 
-    isLoggedIn, user, avatarUrl, token,
-    isAuthenticated, username, userAvatar, userEmail, userRole, userId, // Добавили userRole, userId
+    isLoggedIn, 
+    user, // Объект пользователя (теперь должен быть правильной структуры)
+    userId, userEmail, userRole, // Отдельные геттеры
+    avatarUrl, token,
+    isAuthenticated, 
+    // username, // Геттер username убрали, используйте displayName или userEmail
+    displayName, // Добавили для примера
+    userAvatar,
     login, 
     register, 
     logout: logoutAction,

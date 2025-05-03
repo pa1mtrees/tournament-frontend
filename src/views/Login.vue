@@ -39,8 +39,9 @@
             <label for="password" class="block text-sm font-medium text-[var(--color-text-muted)]">
               Password
             </label>
+            
             <div class="mt-1">
-              <input 
+              <input data-popover-target="popover-password" data-popover-placement="bottom"
                 id="password" 
                 name="password" 
                 type="password" 

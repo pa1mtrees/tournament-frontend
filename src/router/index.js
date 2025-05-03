@@ -27,7 +27,21 @@ const router = createRouter({
       component: () => import('../views/UserProfileView.vue'), // НУЖНО СОЗДАТЬ ЭТОТ КОМПОНЕНТ
       props: true // Передавать :id как пропс в компонент
       // meta: { requiresAuth: true } // Возможно, просмотр тоже требует входа?
-    }
+    },
+    { 
+      path: '/tournaments', 
+      name: 'tournaments-list', 
+      component: () => import('../views/TournamentsListView.vue') 
+    },
+    // --- КОНЕЦ МАРШРУТА СПИСКА ТУРНИРОВ ---
+
+    // --- ДОБАВЛЯЕМ МАРШРУТ ДЕТАЛЕЙ ТУРНИРА (понадобится для ссылок с карточек) ---
+     { 
+      path: '/tournaments/:id', // Динамический :id
+      name: 'tournament-detail', 
+      component: () => import('../views/TournamentDetailView.vue'), // СОЗДАЙТЕ ЭТОТ ФАЙЛ ПОЗЖЕ
+      props: true 
+    },
     // ... другие маршруты ...
   ],
 })

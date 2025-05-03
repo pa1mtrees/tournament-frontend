@@ -29,8 +29,9 @@
 
     <div class="space-y-4">
         <div class="flex justify-between items-center">
-            <h3 class="text-2xl font-semibold text-[var(--color-text-light)]">My Teams</h3>
+            <h3 class="text-2xl font-semibold text-[var(--color-text-light)]">My Team</h3>
             <button 
+              v-if="authStore.user && !authStore.user.team_id" 
               @click="openCreateTeamModal"
               class="bg-[var(--color-myyellow)] text-[var(--color-primary)] px-4 py-1.5 rounded-[0.7vw] hover:text-[var(--color-myred)] transition-colors text-sm font-medium"
              >
@@ -39,20 +40,52 @@
         </div>
         
         <div class="bg-[var(--color-primary)] p-6 rounded-[1vw] shadow-lg">
-            <div v-if="isLoadingTeams" class="text-center text-[var(--color-text-muted)]">Loading teams...</div>
-            <div v-else-if="teamsError" class="text-center text-red-500">{{ teamsError }}</div>
-            <div v-else-if="myFilteredTeams.length === 0" class="text-center text-[var(--color-text-muted)]">Not in a team yet.</div> 
-            <div v-else class="space-y-3">
-                <div v-for="team in myFilteredTeams" :key="team.id" class="p-3 bg-[var(--color-secondary)] rounded-md flex justify-between items-center">
-                    <span class="text-[var(--color-text-light)] font-medium">{{ team.name }}</span>
-                    <span class="text-xs text-[var(--color-text-muted)]">
-                      {{ team.captain_id === authStore.userId ? 'Captain' : 'Member' }} 
-                      (Sport ID: {{ team.sport_id }})
-                    </span> 
-                </div>
+            <div v-if="authStore.user && authStore.user.team" class="space-y-3">
+              <table class="w-full table-auto border-collapse border border-[var(--color-secondary)]">
+              <thead class="bg-[var(--color-secondary)] text-left">
+                <tr>
+                  <!-- Header: Team Name -->
+                  <th class="p-3 text-[var(--color-text-light)] font-medium">{{ authStore.user.team.name }}</th>
+                  <!-- Header: Role -->
+                  <th class="p-3 text-[var(--color-text-light)] font-medium">Role</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Row for the current user -->
+                <tr class="border-t border-[var(--color-secondary)]">
+                  <!-- Cell: User's Nickname or Email -->
+                  <td class="p-3 text-[var(--color-text-light)]">
+                    {{ authStore.user.nickname || authStore.user.email }}
+                  </td>
+                  <!-- Cell: User's Role in Team -->
+                  <td class="p-3 text-sm text-[var(--color-text-muted)]">
+                    {{ authStore.user.team.captain_id === authStore.userId ? 'Captain' : 'Member' }}
+                  </td>
+                </tr>
+                
+                <!-- 
+                  TODO: Add rows for other team members later if needed.
+                  You would need to fetch the full team details including members.
+                  Example structure for iterating over members:
+                  <tr v-for="member in teamMembers" :key="member.id" class="border-t border-[var(--color-secondary)]">
+                    <td class="p-3 text-[var(--color-text-light)]">{{ member.nickname || member.email }}</td>
+                    <td class="p-3 text-sm text-[var(--color-text-muted)]">
+                      {{ member.id === authStore.user.team.captain_id ? 'Captain' : 'Member' }}
+                    </td>
+                  </tr>
+                -->
+              </tbody>
+            </table>
             </div>
+            <div v-else-if="authStore.user && !authStore.user.team_id" class="text-center text-[var(--color-text-muted)]">
+                Not in a team yet.
+            </div>
+             <div v-else-if="!authStore.user" class="text-center text-[var(--color-text-muted)]">
+                Loading user data...
+             </div>
         </div>
     </div>
+
 
 
     <div class="space-y-6">
@@ -73,15 +106,9 @@
 import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import { RouterLink } from 'vue-router';
-import apiClient from '@/services/apiClient';
 import CreateTeamModal from '@/components/modals/CreateTeamModal.vue'; 
 
 const authStore = useAuthStore();
-
-// Состояние для команд
-const allTeams = ref([]); // Все команды
-const isLoadingTeams = ref(false);
-const teamsError = ref('');
 
 // Состояние для модального окна
 const isCreateTeamModalOpen = ref(false);
@@ -94,60 +121,21 @@ const formattedJoinDate = computed(() => {
     } catch (e) { return authStore.user.created_at; }
 });
 
-// --- НОВОЕ Computed Свойство для Фильтрации Команд ---
-const myFilteredTeams = computed(() => {
-  if (!authStore.user || !authStore.userId) {
-    return []; // Если данных пользователя нет, вернуть пустой массив
-  }
-  const currentUserId = authStore.userId;
-  const currentUserTeamId = authStore.user.team_id; // Получаем team_id пользователя
-
-  return allTeams.value.filter(team => {
-    // Команда подходит, если пользователь ее капитан ИЛИ ID команды совпадает с team_id пользователя
-    return team.captain_id === currentUserId || (currentUserTeamId && team.id === currentUserTeamId);
-  });
-});
-// -----------------------------------------------------
-
-// Функция загрузки ВСЕХ команд
-const fetchTeams = async () => {
-    isLoadingTeams.value = true;
-    teamsError.value = '';
-    allTeams.value = [];
-    try {
-        const response = await apiClient.get('/teams'); 
-        allTeams.value = response.data || [];
-    } catch (err) {
-        console.error("Error fetching teams:", err);
-        teamsError.value = 'Failed to load teams.';
-    } finally {
-        isLoadingTeams.value = false;
-    }
-};
-
 // Функции для управления модалкой (без изменений)
 const openCreateTeamModal = () => { isCreateTeamModalOpen.value = true; };
 const closeCreateTeamModal = () => { isCreateTeamModalOpen.value = false; };
 
 // Обработчик события создания команды (без изменений)
-const handleTeamCreated = (newTeam) => {
+const handleTeamCreated = async (newTeam) => {
     console.log('Team created:', newTeam);
-    fetchTeams(); // Перезагружаем список команд
-    // Возможно, нужно обновить и данные пользователя (authStore.user), если бэкенд меняет team_id при создании
-    // authStore.fetchUser(authStore.userId); // Перезагрузить данные текущего пользователя
-};
-
-// Загружаем команды при монтировании компонента
-onMounted(() => {
-    // Убедимся, что данные пользователя загружены перед загрузкой команд, если это важно для фильтрации
-    if (authStore.user) {
-        fetchTeams();
-    } else {
-        // Можно подождать или показать сообщение, что профиль еще грузится
-        console.warn("User data not available yet for team filtering.");
-        // Можно попробовать загрузить команды позже, используя watch на authStore.user
+    // Закрываем модалку (она сама закроется через таймаут, но можно и сразу)
+    // closeCreateTeamModal(); 
+    
+    // Перезагружаем данные ТЕКУЩЕГО пользователя, чтобы обновить user.team и user.team_id
+    if (authStore.userId) {
+       await authStore.fetchUser(authStore.userId); 
     }
-});
+};
 
 </script>
 

@@ -45,7 +45,6 @@
                       required
                       class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-[var(--color-secondary)] focus:outline-none focus:ring-[var(--color-myyellow)] focus:border-[var(--color-myyellow)] sm:text-sm rounded-md bg-[var(--color-secondary)] text-[var(--color-text-light)]"
                     >
-                      <option value="" disabled>Select discipline</option>
                       <option v-for="sport in sports" :key="sport.id" :value="sport.id">
                         {{ sport.name }}
                       </option>
@@ -128,7 +127,7 @@
     try {
       const response = await apiClient.get('/sports');
       // Ожидаем массив [{ id: 1, name: 'football' }]
-      sports.value = response.data || []; 
+      sports.value = response.data.sports || []; 
     } catch (err) {
       console.error("Error fetching sports:", err);
       sportsError.value = 'Failed to load disciplines.';

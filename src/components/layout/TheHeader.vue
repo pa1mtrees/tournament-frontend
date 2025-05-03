@@ -28,12 +28,10 @@
                   alt="User Avatar" 
                   class="w-8 h-8 rounded-full border-2 border-[var(--color-myyellow)]" 
                />
-               <div v-else class="w-8 h-8 rounded-full bg-[var(--color-secondary)] border-2 border-[var(--color-myyellow)] flex items-center justify-center text-sm text-[var(--color-text-light)]">
-                 {{ authStore.username?.charAt(0).toUpperCase() }}
-               </div>
+               <div v-else class="w-8 h-8 rounded-full bg-[var(--color-secondary)] border-2 border-[var(--color-myyellow)] flex items-center justify-center text-sm text-[var(--color-text-light)]">?</div>
 
                <span class="mobile-jaro dynamic-text text-[var(--color-text-light)]">
-                 {{ authStore.userEmail }}
+                 {{ authStore.user.nickname || authStore.user.email }} 
                </span>
 
                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[var(--color-text-light)] ml-1 transition-transform duration-200" :class="{'rotate-180': isUserDropdownOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

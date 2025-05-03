@@ -1,0 +1,1 @@
+<template><h1>Tournament {{ $route.params.id }} Detail</h1></template>

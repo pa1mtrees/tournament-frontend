@@ -128,7 +128,7 @@ const handleSignUp = async () => {
     firstName: firstName.value, 
     lastName: lastName.value,
     email: email.value,
-    password: password.value 
+    password: password.value,
   });
 
   isLoading.value = false; 
