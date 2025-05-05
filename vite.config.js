@@ -12,6 +12,10 @@ export default defineConfig({
     vueDevTools(),
     tailwindcss(),
   ],
+  server: { // <-- Добавляем или модифицируем эту секцию
+    host: true // Это заставит Vite слушать все адреса, включая сетевой IP
+    // port: 5173 // Можно явно указать порт, если нужно (по умолчанию и так 5173)
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

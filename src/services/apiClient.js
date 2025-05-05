@@ -4,7 +4,7 @@ import axios from 'axios';
 
 // Получаем базовый URL API из переменных окружения Vite
 // Создайте файл .env в корне проекта и добавьте VITE_API_BASE_URL=http://localhost:8080 (или ваш порт Go)
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.64:8082'; 
+const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'; 
 
 const apiClient = axios.create({
   baseURL: baseURL,

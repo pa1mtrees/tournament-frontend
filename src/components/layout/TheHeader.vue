@@ -1,8 +1,9 @@
 <template>
   <header class="bg-[var(--color-primary)] shadow-md md:rounded-b-[2vw] sticky top-0 z-50">
     <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <router-link to="/" class="flex items-center">
-        <img src="/src/assets/Logo.svg" alt="Logo" class="h-[min(15vw,150px)]" />
+      <router-link to="/" class="flex items-center gap-2">
+        <img src="/src/assets/heart.gif" alt="Logo" class="w-12 md:w-22 h-10" />
+        <h1 class="text-5xl text-myred pb-1 jersey tracking-wide">heartbit</h1>
       </router-link>
 
       <div class="hidden md:flex items-center justify-between w-full ml-10"> 
@@ -17,7 +18,7 @@
           
           <div v-if="!authStore.isAuthenticated" class="flex items-center fluid-space-x">
             <router-link to="/login" class="login-button dynamic-text">Login</router-link>
-            <router-link to="/signup" class="signup-button dynamic-text bg-[var(--color-myyellow)] text-[var(--color-primary)] px-4 py-1 rounded-[0.7vw] hover:text-[var(--color-myred)] transition-colors">Sign Up</router-link>
+            <router-link to="/signup" class="login-button dynamic-text hover:text-[var(--color-text-light)] transition-colors">Sign Up</router-link>
           </div>
 
           <div v-else>
@@ -26,7 +27,7 @@
                   v-if="authStore.userAvatar" 
                   :src="authStore.userAvatar" 
                   alt="User Avatar" 
-                  class="w-8 h-8 rounded-full border-2 border-[var(--color-myyellow)]" 
+                  class="w-8 h-8 rounded-full border-2 border-[var(--color-text-light)]" 
                />
                <div v-else class="w-8 h-8 rounded-full bg-[var(--color-secondary)] border-2 border-[var(--color-myyellow)] flex items-center justify-center text-sm text-[var(--color-text-light)]">?</div>
 
@@ -41,10 +42,10 @@
             
             <transition  >
               <div v-show="isUserDropdownOpen" @click="closeUserDropdown" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-[var(--color-primary)] ring-1 ring-[var(--color-secondary)] ring-opacity-5 focus:outline-none z-50">
-                <router-link to="/profile" class="block px-4 py-2 text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myyellow)]">My Profile</router-link>
-                <router-link to="/settings" class="block px-4 py-2 text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myyellow)]">Settings</router-link>
+                <router-link to="/profile" class="block px-4 py-2 text-sm md:text-xl text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myyellow)]">My Profile</router-link>
+                <router-link to="/settings" class="block px-4 py-2 text-sm md:text-xl text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myyellow)]">Settings</router-link>
                 <hr class="border-t border-[var(--color-secondary)] my-1"/> 
-                <button @click="handleLogout" class="block w-full text-left px-4 py-2 text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myred)]">Logout</button>
+                <button @click="handleLogout" class="block w-full text-left px-4 py-2 text-sm md:text-lg mobile-jaro text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myred)]">Logout</button>
               </div>
             </transition>
           </div>
@@ -126,7 +127,7 @@ const handleLogoutMobile = () => {
 
 <style scoped>
 .fluid-nav-link.router-link-exact-active {
-   color: var(--color-myyellow);
-   font-weight: 600; 
+   color: var(--color-myred);
+   font-weight: 400; 
 }
 </style>

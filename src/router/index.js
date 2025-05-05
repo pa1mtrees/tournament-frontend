@@ -42,6 +42,13 @@ const router = createRouter({
       component: () => import('../views/TournamentDetailView.vue'), // СОЗДАЙТЕ ЭТОТ ФАЙЛ ПОЗЖЕ
       props: true 
     },
+    { 
+      path: '/invites/:inviteToken', // Динамический токен приглашения
+      name: 'accept-invite', 
+      component: () => import('../views/AcceptInvite.vue'), // Новый компонент
+      props: true, // Передаем inviteToken как пропс
+      meta: { requiresAuth: true } // Пользователь должен быть залогинен, чтобы принять инвайт
+    },
     // ... другие маршруты ...
   ],
 })

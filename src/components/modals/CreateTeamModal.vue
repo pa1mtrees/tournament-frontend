@@ -19,12 +19,12 @@
         >
           <div v-if="isOpen" class="bg-[var(--color-primary)] rounded-[1vw] shadow-xl w-full max-w-md overflow-hidden">
             <div class="p-6 space-y-4">
-              <h3 class="text-xl font-semibold text-center text-[var(--color-myyellow)] font-['Jaro']">
+              <h3 class="text-2xl text-center text-[var(--color-myred)] font-['Jaro']">
                 Create New Team
               </h3>
   
               <form @submit.prevent="handleCreateTeam">
-                <div class="space-y-4">
+                <div class="poppins space-y-4">
                   <div>
                     <label for="teamName" class="block text-sm font-medium text-[var(--color-text-muted)]">Team Name</label>
                     <input 
@@ -72,14 +72,14 @@
                         type="button" 
                         @click="closeModal"
                         :disabled="isLoading"
-                        class="px-4 py-2 text-sm font-medium rounded-md border border-gray-500 text-[var(--color-text-muted)] hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
+                        class="px-4 py-2 text-sm font-medium rounded-md border border-myred text-[var(--color-myred)] hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
                       >
                         Cancel
                      </button>
                      <button 
                         type="submit"
                         :disabled="isLoading || !teamName || !selectedSportId"
-                        class="px-4 py-2 text-sm font-medium rounded-md border border-transparent shadow-sm text-[var(--color-primary)] bg-[var(--color-myyellow)] hover:text-[var(--color-myred)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-myyellow)] disabled:opacity-50"
+                        class="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-[var(--color-text-light)] bg-[var(--color-myred)] hover:bg-[var(--color-myreddarker)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-myyellow)] disabled:opacity-50"
                      >
                         <span v-if="!isLoading">Create Team</span>
                         <span v-else>Creating...</span>
@@ -144,13 +144,13 @@
     try {
       // Отправляем запрос на POST /teams
       // Убедитесь, что бэкенд ожидает { "name": "...", "sport_id": ... }
-      const response = await apiClient.post('/teams', {
+      const response = await apiClient.post('/teams/', {
         name: teamName.value,
         sport_id: parseInt(selectedSportId.value) // Убедимся, что ID - число
       });
   
       // Успех
-      successMsg.value = `Team "${response.data.name}" created successfully!`;
+      successMsg.value = `Team "${teamName}" created successfully!`;
       emit('teamCreated', response.data); // Отправляем событие с созданной командой
   
       // Закрываем модалку через небольшую задержку

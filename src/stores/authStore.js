@@ -100,9 +100,53 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function register(userData) { /* ... как раньше ... */ }
+  // --- Register Action ---
+  async function register(userData) {
+    try {
+       // Отправляем POST запрос на /users/signup с правильными ключами JSON
+      const response = await apiClient.post('/users/signup', {
+        first_name: userData.firstName, // Используем first_name
+        last_name: userData.lastName,   // Используем last_name
+        email: userData.email,
+        password: userData.password,
+      });
 
-  function logoutAction(shouldRedirect = true) { /* ... как раньше ... */ }
+      // Обработка успешной регистрации (например, статус 201)
+      console.log('Registration successful:', response.data);
+      // Можно вернуть сообщение об успехе компоненту
+      return { success: true, message: 'Registration successful! Please log in.' };
+      // Или сразу редиректить на логин: router.push('/login');
+
+    } catch (error) {
+      console.error('Registration failed:', error.response?.data || error.message);
+      // Возвращаем ошибку для обработки в компоненте
+      return { success: false, message: error.response?.data?.message || 'Registration failed' };
+    }
+  }
+
+  // --- Logout Action ---
+  // Используем имя logoutAction для внутренней логики
+  function logoutAction(shouldRedirect = true) {
+    console.log('logoutAction called in store. Redirect:', shouldRedirect);
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser'); // Обновили ключ, если используем authUser
+    localStorage.removeItem('authEmail'); // Также очищаем email
+    token.value = null;
+    isLoggedIn.value = false;
+    user.value = null; // Сбрасываем объект пользователя
+    userId.value = null; // Сбрасываем ID
+    userEmail.value = null; // Сбрасываем email
+    avatarUrl.value = null;
+    console.log('User state reset.');
+    if (shouldRedirect) {
+      console.log('Attempting redirect to /login in 50ms');
+      // Используем setTimeout для небольшой задержки перед редиректом
+      setTimeout(() => {
+        console.log('Executing redirect now');
+        router.push('/login');
+      }, 50);
+    }
+  }
 
   async function checkAuthOnLoad() {
     const storedToken = localStorage.getItem('authToken');

@@ -12,7 +12,7 @@
  
     <div class="relative z-10 flex justify-center lg:justify-end items-center py-12 px-4 sm:min-h-[calc(100vh-150px)] lg:min-h-0"> 
       <div class="w-full max-w-md p-8 space-y-6 bg-[var(--color-primary)] rounded-[1vw] shadow-lg">
-        <h2 class="text-center text-3xl font-bold text-[var(--color-myyellow)] font-['Jaro']">
+        <h2 class="text-center text-4xl text-[var(--color-text-light)] font-['Jaro']">
           Sign Up
         </h2>
         <form class="space-y-6" @submit.prevent="handleSignUp">
@@ -64,7 +64,7 @@
             <button 
               type="submit" 
               :disabled="isLoading"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-[0.7vw] shadow-sm text-lg font-medium text-[var(--color-primary)] bg-[var(--color-myyellow)] hover:text-[var(--color-myred)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-myyellow)] transition-colors disabled:opacity-50"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-[0.7vw] shadow-sm text-lg font-medium text-[var(--color-text-light)] bg-[var(--color-myred)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-myyellow)] transition-colors disabled:opacity-50"
             >
               <span v-if="!isLoading">Sign Up</span>
               <span v-else>Signing Up...</span>
@@ -76,7 +76,7 @@
           Already have an account? 
           <router-link 
             to="/login" 
-            class="font-medium text-[var(--color-myyellow)] hover:text-[var(--color-myred)]"
+            class="font-medium text-[var(--color-myred)]"
           >
             Sign In
           </router-link>
@@ -136,8 +136,8 @@ const handleSignUp = async () => {
   if (result.success) {
      successMsg.value = result.message || 'Registration successful!';
      // Опционально: очистить форму или перенаправить
-     // firstName.value = ''; lastName.value = ''; email.value = ''; password.value = ''; confirmPassword.value = '';
-     // setTimeout(() => router.push('/login'), 2000); 
+     firstName.value = ''; lastName.value = ''; email.value = ''; password.value = ''; confirmPassword.value = '';
+     setTimeout(() => router.push('/login'), 2000); 
   } else {
     errorMsg.value = result.message || 'Registration failed.';
   }

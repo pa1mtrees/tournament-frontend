@@ -3,15 +3,14 @@
 
 @theme {
   /* ... ваши цвета ... */
-  --color-primary: #3a4c55;
-  --color-secondary: #263238;
+  --color-primary: #1D2734;
+  --color-secondary: #161D27;
   --color-myyellow: #ffb300;
   --color-myyeldarker: #d89e18;
-  --color-myred: #c64242;
+  --color-myred: #de2424;
   --color-myreddarker: #962b2b;
   --color-text-light: #ffffff;
   --color-text-muted: #a0a0a0;
-
   /* --- Шрифты --- */
   /* Шрифт для основного текста (мелкий) */
   --font-poppins: 'Poppins', sans-serif;
@@ -27,7 +26,10 @@
     font-size: min(2vw, 25px);
   }
   .fluid-space-x {
-    --space-value: min(2vw, 20px);
+    --space-value: min(2vw, 15px);
+  }
+  .fluid-space-x-forget {
+    --space-value: min(2vw, 15px);
   }
   .fluid-space-x > * + * {
     margin-left: var(--space-value);
@@ -35,15 +37,19 @@
   .mobile-jaro {
     font-family: var(--font-display);
   }
+  .poppins {
+    font-family: var(--font-poppins);
+  }
   .footer-text {
-    @apply font-poppins text-sm text-[var(--color-text-muted)] hover:text-[var(--color-myyellow)] transition-colors;
+    @apply font-poppins text-sm text-[var(--color-text-muted)] hover:text-[var(--color-myred)] transition-colors;
   }
   .login-button.router-link-exact-active {
-    @apply text-[var(--color-myyellow)] cursor-default;
+    @apply text-[var(--color-text-light)] cursor-default;
     @apply hover:bg-[var(--color-myreddarker)]; 
   }
   .login-button{
-    @apply bg-[var(--color-myred)] text-[var(--color-primary)] px-4 py-1 rounded-[0.7vw] hover:text-[var(--color-myyellow)] transition-colors
+    @apply bg-[var(--color-myred)] text-[var(--color-primary)] px-4 py-1 rounded-[0.7vw] hover:text-[var(--color-text-light)] transition-colors;
+    @apply hover:bg-[var(--color-myreddarker)]; 
   }
   .signup-button.router-link-exact-active {
     @apply bg-[var(--color-myyellow)] text-[var(--color-myred)] cursor-default;
@@ -59,20 +65,26 @@
      color: var(--color-myyellow);
   }
   .select-style {
-    @apply mt-1 block w-full pl-3 pr-10 py-1.5 text-base border border-[var(--color-secondary)] focus:outline-none focus:ring-[var(--color-myyellow)] focus:border-[var(--color-myyellow)] sm:text-sm rounded-md bg-[var(--color-secondary)] text-[var(--color-text-light)];
+    @apply font-poppins mt-1 block w-full pl-3 pr-10 py-1.5 text-base border border-[var(--color-secondary)] focus:outline-none focus:ring-[var(--color-myyellow)] focus:border-[var(--color-myyellow)] sm:text-sm rounded-md bg-[var(--color-secondary)] text-[var(--color-text-light)];
   }
   .label-style {
-    @apply block text-sm font-medium text-[var(--color-text-muted)];
+    @apply font-poppins block text-sm font-medium text-[var(--color-text-muted)];
   }
   .input-style {
-     @apply mt-1 appearance-none block w-full px-3 py-2 border border-[var(--color-secondary)] rounded-md shadow-sm placeholder-[var(--color-text-muted)] bg-[var(--color-secondary)] text-[var(--color-text-light)] focus:outline-none focus:ring-[var(--color-myyellow)] focus:border-[var(--color-myyellow)] sm:text-sm;
+     @apply font-poppins mt-1 appearance-none block w-full px-3 py-2 border border-[var(--color-secondary)] rounded-md shadow-sm placeholder-[var(--color-text-muted)] bg-[var(--color-secondary)] text-[var(--color-text-light)] focus:outline-none focus:ring-[var(--color-myyellow)] focus:border-[var(--color-myyellow)] sm:text-sm;
   }
   .select-style-modal {
-    @apply mt-1 block w-full pl-3 pr-10 py-2 text-base border border-[var(--color-secondary)] focus:outline-none focus:ring-[var(--color-myyellow)] focus:border-[var(--color-myyellow)] sm:text-sm rounded-md bg-[var(--color-secondary)] text-[var(--color-text-light)];
+    @apply font-poppins mt-1 block w-full pl-3 pr-10 py-2 text-base border border-[var(--color-secondary)] focus:outline-none focus:ring-[var(--color-myyellow)] focus:border-[var(--color-myyellow)] sm:text-sm rounded-md bg-[var(--color-secondary)] text-[var(--color-text-light)];
   }
   .option-style {
-    @apply text-[var(--color-text-light)] bg-[var(--color-secondary)] hover:bg-[var(--color-myyellow)] hover:text-[var(--color-primary)] transition-colors;
+    @apply font-poppins text-[var(--color-text-light)] bg-[var(--color-secondary)] hover:bg-[var(--color-myyellow)] hover:text-[var(--color-primary)] transition-colors;
   }
+  .jersey {
+    font-family: "Jersey 10", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+  }
+  
 }
 @layer base {
   body {
@@ -87,7 +99,7 @@
   h5,
   h6 {
     font-family: var(--font-display);
-    @apply font-normal text-[var(--color-myyellow)];
+    @apply font-normal text-[var(--color-text-light)];
   }
   p,
   label,
@@ -100,6 +112,9 @@
   }
   .fluid-nav-link {
     @apply text-[var(--color-text-light)] hover:text-[var(--color-myred)] transition-colors;
+  }
+  span {
+    @apply font-poppins;
   }
 }
 /* ... остальной код main.css ... */

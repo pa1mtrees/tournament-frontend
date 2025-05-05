@@ -1,141 +1,64 @@
 <script setup>
-const tournaments = [
-  {
-    id: 1,
-    name: 'Summer Championship',
-    organizer: 'eSports League',
-    sport: 'Dota 2',
-    startDate: '2025-06-15',
-    format: '5v5',
-    participants: '32/64',
-    prizePool: '$50,000',
-    registrationDeadline: '2025-06-10',
-  },
-  {
-    id: 2,
-    name: 'Winter Cup',
-    organizer: 'Gaming Federation',
-    sport: 'CS:GO',
-    startDate: '2025-12-01',
-    format: '6v6',
-    participants: '16/32',
-    prizePool: '$25,000',
-    registrationDeadline: '2025-11-25',
-  },
-  {
-    id: 3,
-    name: 'Winter Cup',
-    organizer: 'Gaming Federation',
-    sport: 'CS:GO',
-    startDate: '2025-12-01',
-    format: '6v6',
-    participants: '16/32',
-    prizePool: '$25,000',
-    registrationDeadline: '2025-11-25',
-  },
-]
+import { ref, onMounted, computed } from 'vue';
+import TournamentCard from '@/components/cards/TournamentCard.vue';
+import { useMetaStore } from '@/stores/metaStore'; // Используем metaStore
+import apiClient from '@/services/apiClient'; // Нужен для API вызова
+
+const metaStore = useMetaStore(); // Инициализируем store
+
+const liveTournaments = ref([]);
+const isLoading = ref(false);
+const errorMsg = ref('');
+
+// Функция загрузки "живых" турниров
+const fetchLiveTournaments = async () => {
+    isLoading.value = true;
+    errorMsg.value = '';
+    liveTournaments.value = [];
+    try {
+        // Запрашиваем только активные турниры, например, первые 4
+        const response = await apiClient.get('/tournaments', { 
+            params: { 
+                status: 'active', // Фильтр по статусу 'active'
+                limit: 4 
+            } 
+        });
+        liveTournaments.value = response.data?.tournaments || [];
+    } catch (err) {
+        console.error("Error fetching live tournaments:", err);
+        errorMsg.value = "Could not load live tournaments.";
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+// Загружаем данные при монтировании
+onMounted(() => {
+  fetchLiveTournaments();
+  metaStore.fetchSports(); // Убедимся, что спорты загружены
+});
 </script>
 
 <template>
   <main class="flex-1">
-    <!-- Герой-секция -->
-    <section class="container mx-auto px-4 py-12">
-      <div class="mx-auto py-8 sm:px-6 sm:py-16 lg:px-2 h-full">
-        <!-- Added h-full -->
-        <div
-          class="relative isolate overflow-hidden bg-primary px-6 pt-16 shadow-2xl sm:rounded-3xl sm:px-16 md:pt-24 lg:flex lg:gap-x-20 lg:px-24 lg:pt-0 h-full min-h-[50vh]"
-        >
-          <!-- Added h-full and min-h-[80vh] -->
-
-          <!-- Bigger SVG Background -->
-          <svg
-            viewBox="0 0 1024 1024"
-            class="absolute top-1/2 left-1/4 -z-10 size-[80rem] -translate-y-1/2 [mask-image:radial-gradient(closest-side,white,transparent)] sm:left-full sm:-ml-80 lg:left-1/4 lg:ml-0 lg:-translate-x-1/2 lg:translate-y-0"
-            aria-hidden="true"
-          >
-            <circle
-              cx="512"
-              cy="512"
-              r="512"
-              fill="url(#759c1415-0410-454c-8f7c-9a820de03641)"
-              fill-opacity="0.7"
-            />
-            <defs>
-              <radialGradient id="759c1415-0410-454c-8f7c-9a820de03641">
-                <stop stop-color="#C64242" />
-                <stop offset="1" stop-color="#FFB300" />
-              </radialGradient>
-            </defs>
-          </svg>
-
-          <!-- Content Section -->
-          <div class="mx-auto max-w-md text-center lg:mx-0 lg:flex-auto lg:py-32 lg:text-center">
-            <h2
-              class="text-4xl tracking-tight text-balance text-myyellow sm:text-8xl"
-            >
-              Tour Nex
-            </h2>
-            <!-- Increased text size -->
-            <p class="mobile-jaro mt-6 text-3xl/8 text-pretty text-myyellow">
-              Accept the challenge <br />
-              Fight with the best <br />
-              Conquer the top!
-            </p>
-            <!-- Increased text size -->
-            <div class="mt-10 flex items-center justify-center lg:justify-center">
-              <a
-                href="#"
-                class="mobile-jaro rounded-[0.6vw] bg-myyellow px-4 py-3 text-5xl font-semibold text-primary shadow-xs hover:text-myred focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                >Get started</a
-              >
-              <!-- Bigger button -->
-            </div>
-          </div>
-
-          <!-- Bigger Image -->
-          <div class="relative mt-16 h-96 lg:mt-8">
-            <!-- Increased h-80 to h-96 -->
-            <img
-              class="absolute top-0 left-0 w-[65rem] max-w-none rounded-3xl"
-              src="/src/assets/bbback.jpg"
-              alt="App screenshot"
-              width="1824"
-              height="1080"
-            />
-            <!-- Increased w-[57rem] to w-[65rem] -->
-          </div>
-        </div>
-      </div>
-    </section>
     <!-- Активные турниры -->
-    <section class="container mx-auto px-4 py-12">
-      <h2 class="text-4xl font-bold mb-8 text-myred">🔴 Live Tournaments</h2>
-      <div class="bg-primary p-10 rounded-3xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div
-          v-for="tournament in tournaments"
-          :key="tournament.id"
-          class="bg-secondary border-2 border-myred rounded-3xl shadow-md p-6 hover:shadow-lg transition-shadow"
-        >
-          <h3 class="text-3xl mb-2 text-white">{{ tournament.name }}</h3>
-          <div class="space-y-2 text-gray-300 text-lg font-poppins">
-            <p><span class="font-semibold">Organizer:</span> {{ tournament.organizer }}</p>
-            <p><span class="font-semibold">Sport:</span> {{ tournament.sport }}</p>
-            <p><span class="font-semibold">Start Date:</span> {{ tournament.startDate }}</p>
-            <p><span class="font-semibold">Format:</span> {{ tournament.format }}</p>
-            <p><span class="font-semibold">Participants:</span> {{ tournament.participants }}</p>
-            <p><span class="font-semibold">Prize Pool:</span> {{ tournament.prizePool }}</p>
-          </div>
-          <div class="mt-4 flex justify-between items-center">
-            <span class="text-md font-family-poppins font-semibold text-myred">
-              Deadline: {{ tournament.registrationDeadline }}
-            </span>
-            <button class="bg-myred text-white text-2xl px-4 py-2 rounded-xl hover:bg-primary-dark mobile-jaro">
-              Attend
-            </button>
-          </div>
+    <section class="container mx-auto px-4 py-6">
+     <h2 class="text-4xl mb-8 text-light">🔴 Live Tournaments</h2>
+     <div class="rounded-3xl">
+        <div v-if="isLoading" class="text-center text-[var(--color-text-muted)]">Loading...</div>
+        <div v-else-if="errorMsg" class="text-center text-red-500">{{ errorMsg }}</div>
+        <div v-else-if="liveTournaments.length === 0" class="text-center text-[var(--color-text-muted)]">No live tournaments currently.</div>
+        <!-- {/* Отображаем через TournamentCard, передаем sportsMap из store */} -->
+        <div v-else class="grid grid-cols-1 gap-6">
+           <TournamentCard 
+                v-for="tournament in liveTournaments" 
+                :key="tournament.id"
+                :tournament="tournament" 
+                :sports-map="metaStore.sportsMap" 
+            />
         </div>
-      </div>
-    </section>
+     </div>
+   </section>
 
     <!-- Как это работает -->
     <section class="py-12 bg-secondary">
@@ -235,6 +158,159 @@ const tournaments = [
         </div>
       </div>
     </section>
+
+    <section class="container mx-auto px-4 py-12">
+      <div class="mx-auto py-8 sm:px-6 sm:py-16 lg:px-2 h-full">
+        <!-- Added h-full -->
+        <div
+          class="relative isolate overflow-hidden bg-primary px-6 pt-16 shadow-2xl sm:rounded-3xl sm:px-16 md:pt-24 lg:flex lg:gap-x-20 lg:px-24 lg:pt-0 h-full min-h-[50vh]"
+        >
+          <!-- Added h-full and min-h-[80vh] -->
+
+          <!-- Bigger SVG Background -->
+          <svg
+            viewBox="0 0 1024 1024"
+            class="absolute top-1/2 left-1/2 -z-10 size-[80rem] -translate-y-1/2 [mask-image:radial-gradient(closest-side,white,transparent)] sm:left-full sm:-ml-80 lg:left-1/2 lg:ml-0 lg:-translate-x-1/2 lg:translate-y-0"
+            aria-hidden="true"
+          >
+            <circle
+              cx="512"
+              cy="512"
+              r="512"
+              fill="url(#759c1415-0410-454c-8f7c-9a820de03642)"
+              fill-opacity="0.7"
+            />
+            <defs>
+              <radialGradient id="759c1415-0410-454c-8f7c-9a820de03642">
+                <stop stop-color="#de2424" />
+                <stop offset="1" stop-color="#f00c0c" />
+              </radialGradient>
+            </defs>
+          </svg>
+
+    <div class="container px-6 py-8 mx-auto">
+        <div class="flex flex-col items-center justify-center space-y-8 lg:-mx-4 lg:flex-row lg:items-stretch lg:space-y-0">
+            <div class="flex flex-col w-full max-w-sm p-8 space-y-8 text-center bg-white border-2 border-gray-200 rounded-lg lg:mx-4 dark:bg-secondary dark:border-myred">
+                <div class="flex-shrink-0">
+                    <h2 class="inline-flex items-center justify-center px-2 font-semibold tracking-wider text-myred text-3xl uppercase rounded-lg bg-gray-50 dark:bg-primary">
+                        Casual
+                    </h2>
+                </div>
+
+                <div class="flex-shrink-0">
+                    <span class="pt-2 text-3xl font-bold text-gray-800 uppercase dark:text-gray-100">
+                        Free
+                    </span>
+                </div>
+
+                <ul class="flex-1 space-y-4">
+                    <li class="text-gray-500 dark:text-gray-400">
+                        Up to 5 projects
+                    </li>
+
+                    <li class="text-gray-500 dark:text-gray-400">
+                        Up to 10 collaborators
+                    </li>
+
+                    <li class="text-gray-500 dark:text-gray-400">
+                        2Gb of storage
+                    </li>
+                </ul>
+
+                <button class="inline-flex items-center justify-center px-4 py-2 font-medium text-white uppercase bg-myred rounded-lg focus:outline-none transform hover:scale-105 transition-transform duration-200">
+                  Start free
+                </button>
+            </div>
+
+            <div class="flex flex-col w-full max-w-sm p-8 space-y-8 text-center bg-white border-2 border-gray-200 rounded-lg lg:mx-4 dark:bg-secondary dark:border-myred">
+                <div class="flex-shrink-0">
+                    <h2 class="inline-flex items-center justify-center px-2 font-semibold tracking-wider text-myred text-3xl uppercase rounded-lg bg-gray-50 dark:bg-primary">
+                        Professional
+                    </h2>
+                </div>
+
+                <div class="flex-shrink-0">
+                    <span class="pt-2 text-3xl font-bold text-gray-800 uppercase dark:text-gray-100">
+                        $24.90
+                    </span>
+                    
+                    <span class="text-gray-500 dark:text-gray-400">
+                        /month
+                    </span>
+                </div>
+
+                <ul class="flex-1 space-y-4">
+                    <li class="text-gray-500 dark:text-gray-400">
+                        Up to 10 projects
+                    </li>
+
+                    <li class="text-gray-500 dark:text-gray-400">
+                        Up to 20 collaborators
+                    </li>
+
+                    <li class="text-gray-500 dark:text-gray-400">
+                        10Gb of storage
+                    </li>
+
+                    <li class="text-gray-500 dark:text-gray-400">
+                        Real-time collaborations
+                    </li>
+                </ul>
+
+                <button class="inline-flex items-center justify-center px-4 py-2 font-medium text-white uppercase bg-myred rounded-lg focus:outline-none transform hover:scale-105 transition-transform duration-200">
+                  Start free trial
+                </button>
+            </div>
+
+            <div class="flex flex-col w-full max-w-sm p-8 space-y-8 text-center bg-white border-2 border-gray-200 rounded-lg lg:mx-4 dark:bg-secondary dark:border-myred">
+                <div class="flex-shrink-0">
+                    <h2 class="inline-flex items-center justify-center px-2 font-semibold tracking-wider text-myred text-3xl uppercase rounded-lg bg-gray-50 dark:bg-primary">
+                        Expert
+                    </h2>
+                </div>
+
+                <div class="flex-shrink-0">
+                    <span class="pt-2 text-3xl font-bold text-gray-800 uppercase dark:text-gray-100">
+                        $49.90
+                    </span>
+
+                    <span class="text-gray-500 dark:text-gray-400">
+                        /month
+                    </span>
+                </div>
+
+                <ul class="flex-1 space-y-4">
+                    <li class="text-gray-500 dark:text-gray-400">
+                        Unlimited projects
+                    </li>
+                    
+                    <li class="text-gray-500 dark:text-gray-400">
+                        Unlimited collaborators
+                    </li>
+                    
+                    <li class="text-gray-500 dark:text-gray-400">
+                        Unlimited storage
+                    </li>
+                    
+                    <li class="text-gray-500 dark:text-gray-400">
+                        Real-time collaborations
+                    </li>
+                    
+                    <li class="text-gray-500 dark:text-gray-400">
+                        24x7 Support
+                    </li>
+                </ul>
+
+                <button class="inline-flex items-center justify-center px-4 py-2 font-medium text-white uppercase bg-myred rounded-lg focus:outline-none transform hover:scale-105 transition-transform duration-200">
+                  Start free trial
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+    </section>
+
   </main>
 </template>
 

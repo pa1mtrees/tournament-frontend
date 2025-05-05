@@ -25,9 +25,9 @@
           </div>
   
           <div class="items-end md:items-start flex flex-col space-y-2 self-start">
-            <img src="/src/assets/Logo.svg" alt="Logo" class="w-[min(5vw, 50px)] hidden md:flex" />
-            <span class="mobile-jaro text-2xl font-bold text-[var(--color-myyellow)]">Tournex</span> 
-            <p class="text-xs text-[var(--color-text-muted)]">&copy; {{ currentYear }} Tournex. All rights reserved.</p>
+            <img src="/src/assets/heart.gif" alt="Logo" class="w-30 hidden md:flex" />
+            <span class="jersey text-5xl tracking-wide text-[var(--color-myred)]">heartbit</span> 
+            <p class="text-xs text-[var(--color-text-muted)]">&copy; {{ currentYear }} heartbit. All rights reserved.</p>
           </div>
   
         </div>
