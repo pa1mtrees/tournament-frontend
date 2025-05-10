@@ -1,164 +1,142 @@
 <template>
-    <div class="space-y-8">
-      
-      <div v-if="isLoading" class="text-center py-10 text-[var(--color-text-muted)]">
-        Loading profile...
-      </div>
-  
-      <div v-else-if="errorMsg" class="text-center py-10 text-red-500">
-        Error: {{ errorMsg }}
-      </div>
-  
-      <template v-else-if="userProfileData">
-        <h1 class="text-4xl font-['Jaro'] text-[var(--color-myyellow)]">
-          {{ userProfileData.first_name }} {{ userProfileData.last_name }}'s Profile 
-        </h1>
-  
-        <div class="bg-[var(--color-primary)] p-6 rounded-[1vw] shadow-lg flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-          
-          <div class="flex-shrink-0">
-            <img 
-              v-if="userProfileData.avatarUrl" 
-              :src="userProfileData.avatarUrl" 
-              alt="User Avatar" 
-              class="w-24 h-24 rounded-full border-4 border-[var(--color-myyellow)]" 
-            />
-             <img 
-              v-else-if="userProfileData.username"
-              :src="`https://api.dicebear.com/8.x/identicon/svg?seed=${userProfileData.username}`"
-              alt="User Avatar" 
-              class="w-24 h-24 rounded-full border-4 border-[var(--color-myyellow)]" 
-              />
-             <div v-else class="w-24 h-24 rounded-full bg-[var(--color-secondary)] border-4 border-[var(--color-myyellow)] flex items-center justify-center text-4xl text-[var(--color-text-light)] font-bold">
-                ?
-              </div>
-          </div>
-  
-          <div class="text-center sm:text-left flex-grow">
-            <h2 class="text-2xl font-semibold text-[var(--color-text-light)]">
-              {{ userProfileData.first_name }} {{ userProfileData.last_name }}
-            </h2>
-            <p class="text-sm text-[var(--color-text-muted)]">{{ userProfileData.email }}</p>
-            <p v-if="userProfileData.role" class="text-sm text-[var(--color-text-muted)] capitalize mt-1">
-              Role: {{ userProfileData.role }}
-            </p>
-            <p v-if="userProfileData.created_at" class="text-xs text-[var(--color-text-muted)] mt-2">
-              Joined: {{ formattedJoinDate }}
-            </p>
-          </div>
-  
-          <div v-if="isOwnProfile" class="sm:ml-auto flex-shrink-0">
-            <router-link 
-              to="/settings" 
-              class="inline-block bg-[var(--color-myyellow)] text-[var(--color-primary)] px-5 py-2 rounded-[0.7vw] hover:text-[var(--color-myred)] transition-colors text-sm font-medium"
-            >
-              Edit Profile
-            </router-link>
-          </div>
-        </div>
-  
-        <div class="space-y-6">
-          <div>
-            <h3 class="text-2xl font-semibold text-[var(--color-text-light)] mb-4">User's Tournaments</h3>
-            <div class="bg-[var(--color-primary)] p-6 rounded-[1vw] shadow-lg text-center text-[var(--color-text-muted)]">
-              (Coming Soon)
-            </div>
-          </div>
-          <div>
-            <h3 class="text-2xl font-semibold text-[var(--color-text-light)] mb-4">User's Match History</h3>
-            <div class="bg-[var(--color-primary)] p-6 rounded-[1vw] shadow-lg text-center text-[var(--color-text-muted)]">
-              (Coming Soon)
-            </div>
-          </div>
-        </div>
-  
-      </template>
-       <div v-else class="text-center py-10 text-[var(--color-text-muted)]">
-         User not found.
-      </div>
-  
+  <div>
+    <div v-if="isLoading" class="text-center py-10 text-[var(--color-text-muted)]">
+      Loading profile...
     </div>
-  </template>
-  
-  <script setup>
-  import { ref, watch, computed, onMounted } from 'vue';
-  import { useRoute, RouterLink } from 'vue-router'; // Импортируем useRoute
-  import { useAuthStore } from '@/stores/authStore'; // Импортируем authStore для сравнения ID
-  import apiClient from '@/services/apiClient'; // Импортируем apiClient
-  
-  const route = useRoute();
-  const authStore = useAuthStore();
-  
-  const userProfileData = ref(null);
-  const isLoading = ref(false);
-  const errorMsg = ref('');
-  
-  // Вычисляемое свойство, чтобы проверить, смотрит ли пользователь свой собственный профиль
-  const isOwnProfile = computed(() => {
-    return authStore.isAuthenticated && userProfileData.value && authStore.userId === userProfileData.value.id;
-  });
-  
-  // Функция загрузки данных профиля
-  const fetchUserProfile = async (userId) => {
-    isLoading.value = true;
-    errorMsg.value = '';
-    userProfileData.value = null; // Сбрасываем перед загрузкой
-  
-    // Проверяем, что userId валидный (не undefined, не null и т.д.)
-    if (!userId) {
-       errorMsg.value = 'Invalid User ID.';
-       isLoading.value = false;
-       return;
-    }
-  
+    <div v-else-if="errorMsg" class="text-center py-10 text-red-500">
+      Error: {{ errorMsg }}
+    </div>
+    <UserDisplayDetails
+      v-else-if="viewedUserData"
+      :user="viewedUserData"
+      :is-own-profile="isOwnProfile"
+      :team-members="viewedUserTeamMembers"
+      :is-loading-members="isLoadingViewedUserMembers"
+      :members-error="viewedUserMembersError"
+      :organized-tournaments="viewedUserOrganizedTournaments"
+      :is-loading-organized-tournaments="isLoadingViewedUserTournaments"
+      :organized-tournaments-error="viewedUserTournamentsError"
+      @open-edit-profile="openEditProfileModal"
+    />
+    <div v-else class="text-center py-10 text-[var(--color-text-muted)]">
+       User not found.
+    </div>
+
+    <EditProfileModal 
+      v-if="isOwnProfile && viewedUserData" 
+      :is-open="isEditProfileModalOpen" 
+      :current-user="viewedUserData" 
+      @close="closeEditProfileModal" 
+      @profile-updated="handleProfileUpdated" 
+    />
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router'; 
+import { useAuthStore } from '@/stores/authStore';
+import { useMetaStore } from '@/stores/metaStore';
+import apiClient from '@/services/apiClient';
+
+import UserDisplayDetails from '@/components/profile/UserDisplayDetails.vue';
+import EditProfileModal from '@/components/modals/EditProfileModal.vue'; 
+
+const props = defineProps({
+  id: { type: [String, Number], required: true }
+});
+
+const authStore = useAuthStore();
+const metaStore = useMetaStore();
+// const route = useRoute(); // props.id теперь основной источник ID
+
+const viewedUserData = ref(null);
+const isLoading = ref(false);
+const errorMsg = ref('');
+
+const viewedUserTeamMembers = ref([]);
+const isLoadingViewedUserMembers = ref(false);
+const viewedUserMembersError = ref('');
+
+const viewedUserOrganizedTournaments = ref([]);
+const isLoadingViewedUserTournaments = ref(false);
+const viewedUserTournamentsError = ref('');
+
+const isEditProfileModalOpen = ref(false);
+
+const isOwnProfile = computed(() => {
+  return authStore.isAuthenticated && viewedUserData.value && authStore.userId === Number(props.id);
+});
+
+const fetchViewedUserProfile = async (userId) => {
+  isLoading.value = true; errorMsg.value = ''; viewedUserData.value = null;
+  if (!userId) { errorMsg.value = 'Invalid User ID.'; isLoading.value = false; return; }
+  try {
+    const response = await apiClient.get(`/users/${userId}`);
+    viewedUserData.value = response.data?.user;
+    if (!viewedUserData.value) throw new Error('User data not found in response.');
+  } catch (err) {
+    console.error("Error fetching user profile:", err);
+    errorMsg.value = err.response?.data?.message || 'Failed to load profile.';
+    if (err.response?.status === 404) errorMsg.value = 'User not found.';
+  } finally { isLoading.value = false; }
+};
+
+const fetchViewedUserTeamMembers = async (teamId) => {
+    if (!teamId) { viewedUserTeamMembers.value = []; return; }
+    isLoadingViewedUserMembers.value = true; viewedUserMembersError.value = ''; viewedUserTeamMembers.value = [];
     try {
-      const response = await apiClient.get(`/users/${userId}`);
-      userProfileData.value = response.data; // Сохраняем полученные данные
-    } catch (err) {
-      console.error("Error fetching user profile:", err);
-      errorMsg.value = err.response?.data?.message || 'Failed to load profile.';
-      if (err.response?.status === 404) {
-          errorMsg.value = 'User not found.';
-      }
-    } finally {
-      isLoading.value = false;
-    }
-  };
-  
-  // Форматирование даты (как в ProfileView)
-  const formattedJoinDate = computed(() => {
-    if (!userProfileData.value?.created_at) {
-      return '';
-    }
+        const response = await apiClient.get(`/teams/${teamId}/members`);
+        viewedUserTeamMembers.value = response.data?.members || [];
+    } catch (err) { viewedUserMembersError.value = 'Failed to load team members.'; } 
+    finally { isLoadingViewedUserMembers.value = false; }
+};
+
+const fetchViewedUserOrganizedTournaments = async (userId) => {
+    if (!userId) return;
+    isLoadingViewedUserTournaments.value = true; viewedUserTournamentsError.value = ''; viewedUserOrganizedTournaments.value = [];
     try {
-      return new Date(userProfileData.value.created_at).toLocaleDateString('en-US', { 
-          year: 'numeric', month: 'long', day: 'numeric' 
-      });
-    } catch (e) {
-      console.error("Error formatting date:", e);
-      return userProfileData.value.created_at; 
+        const response = await apiClient.get('/tournaments', { params: { organizer_id: userId, limit: 50 } });
+        viewedUserOrganizedTournaments.value = response.data?.tournaments || [];
+    } catch (err) { viewedUserTournamentsError.value = 'Failed to load organized tournaments.'; } 
+    finally { isLoadingViewedUserTournaments.value = false; }
+};
+
+const openEditProfileModal = () => { if(isOwnProfile.value) isEditProfileModalOpen.value = true; };
+const closeEditProfileModal = () => { isEditProfileModalOpen.value = false; };
+const handleProfileUpdated = async () => {
+    if (props.id) {
+       await fetchViewedUserProfile(props.id); // Перезагружаем данные этого профиля
+       if(isOwnProfile.value && authStore.userId) { // Если это был свой, обновляем и в store
+           authStore.fetchUser(authStore.userId);
+       }
     }
-  });
-  
-  // Следим за изменением параметра :id в маршруте
-  // и перезагружаем данные при его изменении
-  watch(
-    () => route.params.id, // Источник наблюдения
-    (newId, oldId) => {
-      if (newId && newId !== oldId) { // Загружаем, если ID изменился и он не пустой
-        fetchUserProfile(newId);
+};
+
+
+watch(
+  () => props.id, 
+  async (newId) => {
+    if (newId) {
+      await fetchViewedUserProfile(newId);
+      if (viewedUserData.value) {
+        if (viewedUserData.value.team_id) {
+          fetchViewedUserTeamMembers(viewedUserData.value.team_id);
+        } else {
+          viewedUserTeamMembers.value = []; 
+        }
+        fetchViewedUserOrganizedTournaments(viewedUserData.value.id);
       }
-    },
-    { immediate: true } // Выполнить fetchUserProfile сразу при монтировании компонента
-  );
-  
-  // Также можно использовать onMounted, если не ожидается навигация между профилями без перезагрузки страницы
-  // onMounted(() => {
-  //   fetchUserProfile(route.params.id);
-  // });
-  
-  </script>
-  
-  <style scoped>
-  /* Стили для страницы профиля пользователя */
-  </style>
+    } else {
+      viewedUserData.value = null; viewedUserTeamMembers.value = []; viewedUserOrganizedTournaments.value = [];
+    }
+  },
+  { immediate: true } 
+);
+
+onMounted(() => {
+  if (metaStore.sports.length === 0) metaStore.fetchSports();
+  // if (metaStore.formats.length === 0) metaStore.fetchFormats();
+});
+
+</script>

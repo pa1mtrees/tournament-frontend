@@ -59,7 +59,7 @@
     <div class="relative z-10 ml-auto self-center flex-shrink-0">
        <router-link 
         :to="{ name: 'tournament-detail', params: { id: tournament.id } }"
-        class="bg-myred text-white text-sm px-4 py-2 md:px-6 rounded-xl hover:bg-primary-dark font-bold whitespace-nowrap" 
+        class="poppins bg-myred text-white text-sm px-4 py-2 md:px-6 rounded-xl hover:bg-myreddarker font-bold whitespace-nowrap" 
       >
         Details &gt;
       </router-link>

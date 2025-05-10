@@ -11,17 +11,40 @@
   --color-myreddarker: #962b2b;
   --color-text-light: #ffffff;
   --color-text-muted: #a0a0a0;
-  /* --- Шрифты --- */
-  /* Шрифт для основного текста (мелкий) */
   --font-poppins: 'Poppins', sans-serif;
-  /* Шрифт для заголовков (крупный) */
+  --font-body: 'Poppins', sans-serif;
   --font-display: 'Jaro', sans-serif;
-  /* Определяем дефолтный sans-serif шрифт как Poppins */
-
   /* ... остальные переменные ... */
 }
 
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+
 @layer utilities {
+  .box-color {
+    --el-empty-fill-color-1	: var(--color-myred);
+  }
+  /* --- Наша кастомная утилита --- */
+  .animated-dot-pattern {
+    /* Точечный фон (используем переменную для цвета) */
+    @apply bg-[radial-gradient(var(--color-myred)_1px,transparent_1px)]; 
+    
+    /* Размер паттерна */
+    @apply [background-size:16px_16px]; 
+    
+    /* Маска */
+    @apply [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)]; 
+    
+    /* --- Применяем анимацию напрямую --- */
+    animation: twinkle 3s infinite alternate ease-in-out;
+    /* Вместо @apply animate-twinkle; */
+    /* ---------------------------------- */
+  }
+  .muted-text {
+    @apply text-[var(--color-text-muted)]
+  }
   .dynamic-text {
     font-size: min(2vw, 25px);
   }

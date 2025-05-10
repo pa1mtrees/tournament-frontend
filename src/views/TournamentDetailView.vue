@@ -40,7 +40,7 @@
         <!-- {/* TODO: Табы (About, Participants, Bracket, Results) */}
         {/* Пока просто выводим секцию "About" */} -->
         <div class="border-t border-[var(--color-secondary)] pt-6">
-            <h2 class="text-2xl font-semibold text-[var(--color-myyellow)] mb-4">About</h2>
+            <h2 class="text-2xl text-[var(--color-text-light)] mb-4">About</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
                <!-- {/* Левая колонка инфо */} -->
@@ -54,14 +54,27 @@
                    <!-- {/* TODO: Загрузить текущее кол-во */} -->
                </div>
                <!-- {/* Правая колонка инфо (Даты) */} -->
-                <div class="space-y-2">
-                    <p><strong class="text-[var(--color-text-muted)] w-32 inline-block">Registration Ends:</strong> <span class="text-[var(--color-text-light)]">{{ formatDateTime(tournament.reg_date) }}</span></p>
-                    <p><strong class="text-[var(--color-text-muted)] w-32 inline-block">Starts:</strong> <span class="text-[var(--color-text-light)]">{{ formatDateTime(tournament.start_date) }}</span></p>
-                    <p><strong class="text-[var(--color-text-muted)] w-32 inline-block">Ends:</strong> <span class="text-[var(--color-text-light)]">{{ formatDateTime(tournament.end_date) }}</span></p>
-               </div>
+               <div class="space-y-2">
+                 <h3 class="text-2xl text-[var(--color-text-light)] mb-2">Key Dates</h3>
+                 <!-- {/* --- НОВЫЙ КОМПОНЕНТ TIMELINE --- */} -->
+                 <el-timeline v-if="tournamentTimeline.length > 0">
+                    <el-timeline-item
+                        v-for="(activity, index) in tournamentTimeline"
+                        :key="index"
+                        :timestamp="activity.formattedTimestamp" 
+                        placement="top" 
+                        :color="activity.color || '#ffb300'" 
+                    >
+                       <span class="text-[var(--color-text-light)]">{{ activity.content }}</span>
+                    </el-timeline-item>
+                 </el-timeline>
+                 <p v-else class="text-[var(--color-myred)] italic">Date information not available.</p>
+                 <!-- {/* --- КОНЕЦ TIMELINE --- */} -->
+             </div>
+
                 <!-- {/* Описание */} -->
                <div class="md:col-span-2 pt-4 space-y-2">
-                  <h3 class="text-lg font-semibold text-[var(--color-text-muted)]">Description</h3>
+                  <h3 class="text-2xl text-[var(--color-text-light)]">Description</h3>
                   <p v-if="tournament.description" class="text-[var(--color-text-light)] whitespace-pre-wrap">{{ tournament.description }}</p>
                   <p v-else class="text-[var(--color-text-muted)] italic">No description provided.</p>
                </div>
@@ -108,7 +121,63 @@
       required: true
     }
   });
-  
+
+
+// --- НОВАЯ Логика для Timeline ---
+// Форматирование даты для timestamp в таймлайне
+const formatDateForTimeline = (dateString) => {
+  if (!dateString) return '';
+  try {
+    return new Date(dateString).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); 
+  } catch (e) { return ''; }
+};
+
+// Computed свойство для генерации данных таймлайна
+const tournamentTimeline = computed(() => {
+  const activities = [];
+  const t = tournament.value; // Сокращение для удобства
+  if (!t) return [];
+
+  const now = new Date();
+
+  // Добавляем событие окончания регистрации
+  if (t.reg_date) {
+      const regDate = new Date(t.reg_date);
+      activities.push({
+          content: `Registration Ends`,
+          timestamp: t.reg_date, // Исходная дата для сортировки
+          formattedTimestamp: formatDateForTimeline(t.reg_date),
+          color: regDate < now ? '#a0a0a0' : '#e6a23c' // Серый если прошло, оранжевый если нет
+      });
+  }
+  // Добавляем событие начала турнира
+  if (t.start_date) {
+       const startDate = new Date(t.start_date);
+      activities.push({
+          content: `Tournament Starts`,
+          timestamp: t.start_date,
+          formattedTimestamp: formatDateForTimeline(t.start_date),
+          color: startDate < now ? '#a0a0a0' : '#67c23a' // Серый если прошло, зеленый если нет
+      });
+  }
+  // Добавляем событие окончания турнира
+  if (t.end_date) {
+       const endDate = new Date(t.end_date);
+      activities.push({
+          content: `Tournament Ends`,
+          timestamp: t.end_date,
+          formattedTimestamp: formatDateForTimeline(t.end_date),
+           color: endDate < now ? '#a0a0a0' : '#f56c6c' // Серый если прошло, красный если нет
+      });
+  }
+
+  // Сортируем события по дате
+  activities.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+  return activities;
+});
+// --- КОНЕЦ Логики для Timeline ---
+
   const metaStore = useMetaStore();
   const authStore = useAuthStore(); // Пока не используется, но может понадобиться для кнопки Register
   
