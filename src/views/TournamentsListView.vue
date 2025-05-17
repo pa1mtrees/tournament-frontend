@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-8">
+  <div class="space-y-8 py-8">
     <h1 class="text-4xl font-['Jaro'] text-[var(--color-text-light)]">Tournaments</h1>
     
     <div class="bg-[var(--color-primary)] p-4 rounded-[1vw] shadow-md space-y-4">
@@ -48,7 +48,7 @@
             </div>
              <div class="self-end">
               <button 
-                v-if="authStore.userRole === 'player'" 
+                v-if="authStore.userRole === 'player' || authStore.userRole === 'organizer'"
                 @click="openCreateTournamentModal" 
                 class="w-full bg-[var(--color-myred)] text-[var(--color-text-light)] px-4 py-1.5 rounded-[0.7vw] text-sm font-medium">
                 Create Tournament

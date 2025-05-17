@@ -22,11 +22,11 @@ const router = createRouter({
       meta: { requiresAuth: true } 
     },
     {
-      path: '/users/:id', // Динамический параметр :id
-      name: 'user-profile',
-      component: () => import('../views/UserProfileView.vue'), // НУЖНО СОЗДАТЬ ЭТОТ КОМПОНЕНТ
-      props: true // Передавать :id как пропс в компонент
-      // meta: { requiresAuth: true } // Возможно, просмотр тоже требует входа?
+      path: '/id/:id',     // Ваш путь для просмотра профилей
+      name: 'user-profile', // Имя этого маршрута
+      component: () => import('../views/UserProfileView.vue'),
+      props: true 
+      // meta: { requiresAuth: true } // Если просмотр чужих профилей требует входа
     },
     { 
       path: '/tournaments', 
@@ -55,6 +55,22 @@ const router = createRouter({
 
 // --- ИСПРАВЛЕННЫЙ НАВИГАЦИОННЫЙ СТРАЖ ---
 router.beforeEach((to, from, next) => {
+    const authStore = useAuthStore(); // Получаем store
+
+  // --- НОВАЯ ЛОГИКА ПЕРЕНАПРАВЛЕНИЯ ---
+  // Проверяем, пытается ли пользователь перейти на страницу чужого профиля (/id/:id)
+  if (to.name === 'user-profile' && to.params.id) {
+    // Сравниваем ID из URL с ID залогиненного пользователя
+    // Убедимся, что authStore.userId существует и to.params.id тоже
+    // to.params.id приходит как строка, поэтому сравниваем с Number() или приводим оба к строке
+    if (authStore.isAuthenticated && authStore.userId && String(authStore.userId) === String(to.params.id)) {
+      // Если ID совпадают, это свой профиль, перенаправляем на /profile
+      console.log(`Redirecting from /id/${to.params.id} to /profile`);
+      next({ name: 'profile' });
+      return; // Завершаем выполнение стража
+    }
+  }
+  // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
   // Сначала проверяем, требует ли маршрут аутентификации
   if (to.meta.requiresAuth) {
     // Получаем доступ к хранилищу ТОЛЬКО ЗДЕСЬ, когда он нужен

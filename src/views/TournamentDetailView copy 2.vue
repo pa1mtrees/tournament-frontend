@@ -10,7 +10,7 @@
         Back to Tournaments
       </router-link>
 
-      <div v-if="isOrganizer" class="flex items-center space-x-2">
+      <div v-if="tournament && authStore.isAuthenticated && authStore.userId === tournament.organizer_id">
         <el-button 
             type="primary" 
             plain 
@@ -19,17 +19,6 @@
             :icon="Edit"
         >
             Edit Tournament
-        </el-button>
-        <el-button 
-            type="danger" 
-            plain 
-            size="small"
-            @click="confirmDeleteTournament"
-            :icon="Delete"
-            :loading="isDeletingTournament"
-        >
-            <span v-if="!isDeletingTournament">Delete Tournament</span>
-            <span v-else>Deleting...</span>
         </el-button>
       </div>
     </div>
@@ -247,12 +236,12 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute, RouterLink, useRouter } from 'vue-router';
+import { useRoute, RouterLink } from 'vue-router';
 import apiClient from '@/services/apiClient';
 import { useMetaStore } from '@/stores/metaStore'; 
 import { useAuthStore } from '@/stores/authStore'; 
 import { ElTimeline, ElTimelineItem, ElTabs, ElTabPane, ElButton, ElIcon, ElResult, ElSkeleton, ElBadge, ElMessage } from 'element-plus';
-import { ArrowLeftBold, Picture, Edit, Delete } from '@element-plus/icons-vue'; // Добавили Edit и Delete
+import { ArrowLeftBold, Picture, Edit } from '@element-plus/icons-vue'; // Добавили Edit
 import EditTournamentModal from '@/components/modals/EditTournamentModal.vue'; // Импортируем новую модалку
 
 
@@ -277,7 +266,6 @@ const props = defineProps({
   id: { type: [String, Number], required: true }
 });
 
-const router = useRouter(); // Инициализируем роутер
 const metaStore = useMetaStore();
 const authStore = useAuthStore(); 
 
@@ -293,7 +281,6 @@ const participantsError = ref('');
 const participantCount = computed(() => participants.value.length);
 const isRegistered = ref(false); 
 const isEditTournamentModalOpen = ref(false);
-const isDeletingTournament = ref(false);
 
 const fetchTournamentDetails = async (tournamentId) => {
   const id = parseInt(tournamentId);
@@ -489,37 +476,6 @@ const handleRegister = async () => {
         if (registrationSuccessful) {
             fetchParticipants(tournamentId); // Обновляем список участников и статус isRegistered
         }
-    }
-};
-
-const isOrganizer = computed(() => {
-    return authStore.isAuthenticated && tournament.value && authStore.userId === tournament.value.organizer_id;
-});
-
-const confirmDeleteTournament = () => {
-    if (!tournament.value) return;
-    if (window.confirm(`Are you sure you want to permanently delete the tournament "${tournament.value.name}"? This action cannot be undone.`)) {
-        deleteTournament();
-    }
-};
-
-const deleteTournament = async () => {
-    if (!tournament.value || !isOrganizer.value) return; // Доп. проверка
-
-    isDeletingTournament.value = true;
-    errorMsg.value = ''; // Сбрасываем предыдущие ошибки страницы
-    try {
-        await apiClient.delete(`/tournaments/${tournament.value.id}`);
-        ElMessage.success(`Tournament "${tournament.value.name}" deleted successfully.`);
-        // Перенаправляем на список турниров
-        router.push({ name: 'tournaments-list' }); 
-    } catch (err) {
-        console.error("Error deleting tournament:", err);
-        // Отображаем ошибку на странице, а не только в ElMessage, если это критично
-        errorMsg.value = err.response?.data?.message || 'Failed to delete tournament.';
-        ElMessage.error(errorMsg.value);
-    } finally {
-        isDeletingTournament.value = false;
     }
 };
 

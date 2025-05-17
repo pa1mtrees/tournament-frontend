@@ -17,9 +17,9 @@
     >
       <template #team-actions>
         <div v-if="authStore.user && authStore.user.team_id" class="flex justify-end items-center gap-2 flex-wrap mt-2">
-            <button v-if="isCaptainOfCurrentTeam" @click="openEditTeamModal" title="Edit Team Details" class="bg-myred hover:bg-myreddarker text-[var(--color-text-light)] px-3 py-2 rounded-[0.7vw] transition-colors text-sm">Edit Team</button>
-            <button v-if="isCaptainOfCurrentTeam" @click="openInviteModal" class="bg-myred hover:scale-125 text-white px-3 py-1.5 rounded-[0.7vw] transition-colors text-xs sm:text-sm font-medium">Invite Member</button>
-            <button v-if="isCaptainOfCurrentTeam" @click="confirmDeleteTeam" :disabled="isDeletingTeam" title="Delete Team" class="bg-transparent border border-red-600 text-red-500 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-[0.7vw] transition-colors text-xs sm:text-sm font-medium disabled:opacity-50">
+            <button v-if="isCaptainOfCurrentTeam" @click="openEditTeamModal" title="Edit Team Details" class="font-medium poppins bg-myred hover:bg-myreddarker text-[var(--color-text-light)] px-3 py-2 rounded-[0.7vw] transition-colors text-sm">Edit Team</button>
+            <button v-if="isCaptainOfCurrentTeam" @click="openInviteModal" class="font-medium poppins bg-myred hover:bg-myreddarker text-[var(--color-text-light)] px-3 py-2 rounded-[0.7vw] transition-colors text-sm">Invite Member</button>
+            <button v-if="isCaptainOfCurrentTeam" @click="confirmDeleteTeam" :disabled="isDeletingTeam" title="Delete Team" class="font-medium bg-transparent border border-myred text-myred hover:bg-myreddarker hover:text-white px-3 py-2 rounded-[0.7vw] transition-colors text-sm">
               <span v-if="!isDeletingTeam">Delete Team</span>
               <span v-else>Deleting...</span>
             </button>
@@ -154,7 +154,7 @@ const deleteTeam = async () => {
         await apiClient.delete(`/teams/${authStore.user.team.id}`);
         alert('Team deleted successfully!'); 
         await authStore.fetchUser(authStore.userId); 
-    } catch (err) { deleteTeamError.value = err.response?.data?.message || 'Failed to delete team.'; } 
+    } catch (err) { deleteTeamError.value = err.response?.data?.message || 'Failed to delete team. Please kick all the members first.'; } 
     finally { isDeletingTeam.value = false; }
 };
 

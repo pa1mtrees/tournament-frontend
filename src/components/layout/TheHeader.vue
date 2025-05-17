@@ -27,7 +27,7 @@
                   v-if="authStore.userAvatar" 
                   :src="authStore.userAvatar" 
                   alt="User Avatar" 
-                  class="w-8 h-8 rounded-full border-2 border-[var(--color-text-light)]" 
+                  class="w-8 h-8 object-cover rounded-lg" 
                />
                <div v-else class="w-8 h-8 rounded-full bg-[var(--color-secondary)] border-2 border-[var(--color-myyellow)] flex items-center justify-center text-sm text-[var(--color-text-light)]">?</div>
 

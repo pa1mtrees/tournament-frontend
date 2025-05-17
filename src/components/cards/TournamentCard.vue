@@ -2,8 +2,8 @@
   <div class="relative flex items-center bg-primary rounded-3xl shadow-md p-6 hover:shadow-lg transition-shadow gap-6 overflow-hidden">
     
     <img
-      v-if="tempLogoUrl" 
-      :src="tempLogoUrl" 
+      v-if="displayLogoUrl" 
+      :src="displayLogoUrl" 
       alt="Background Logo"
       class="absolute left-0 top-0 w-full h-full object-cover opacity-10 blur-sm pointer-events-none select-none"
       style="z-index:1;"
@@ -11,11 +11,12 @@
     
     <div class="relative flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden flex items-center justify-center z-10 bg-primary">
        <img 
-          v-if="tempLogoUrl" 
-          :src="tempLogoUrl" 
-          alt="Logo" 
+          v-if="displayLogoUrl" 
+          :src="displayLogoUrl" 
+          alt="Tournament Logo" 
           class="object-contain w-full h-full p-1" 
         />
+        <span v-else class="text-3xl text-[var(--color-myyellow)]">🏆</span> 
     </div>
     
     <div class="relative flex-1 min-w-0 z-10">
@@ -131,12 +132,6 @@
 </template>
 
 <script setup>
-const tour = [
-  {
-    id: 1,
-    logo: '/src/assets/travel.png',
-  },]
-
 import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useMetaStore } from '@/stores/metaStore'; // Импортируем metaStore
@@ -147,7 +142,6 @@ const props = defineProps({
   // sportsMap: { type: Object, default: () => ({}) } 
   // TODO: Добавить formatMap позже
 });
-const tempLogoUrl = '/src/assets/travel.png'
 
 // Пытаемся получить имя спорта из карты
 // const sportName = computed(() => props.sportsMap[props.tournament.sport_id] || null);
@@ -159,12 +153,22 @@ const sportName = computed(() => metaStore.sportsMap[props.tournament.sport_id] 
 const formatName = computed(() => metaStore.formatsMap[props.tournament.format_id] || null);
 // -----------------------------------------
 
-// TODO: Получать лого турнира (если оно будет в модели) или лого спорта
-const tournamentLogo = computed(() => {
-    // return props.tournament.logo_url || getSportLogo(props.tournament.sport_id) || null;
-    // Пока заглушка
+// --- ОБНОВЛЕННАЯ ЛОГИКА ДЛЯ ЛОГОТИПА ТУРНИРА ---
+const displayLogoUrl = computed(() => {
+    // 1. Проверяем, есть ли logo_url в данных турнира (от бэкенда)
+    if (props.tournament.logo_url) {
+        // Если это относительный путь от бэкенда, нужно будет добавить VITE_API_BASE_URL
+        // Если это полный URL (например, из R2), то просто возвращаем его
+        // Предположим, бэкенд возвращает ПОЛНЫЙ URL
+        return props.tournament.logo_url;
+    }
+    // 2. Временная заглушка, если нет logo_url (можно убрать, когда будет реальное лого)
+    // return '/images/travel.png'; // Если вы хотите оставить временное лого
+
+    // 3. Если нет, возвращаем null (будет показана иконка 🏆)
     return null; 
 }); 
+// ---------------------------------------------
 
 // Форматирование даты
 const formatDate = (dateString) => {

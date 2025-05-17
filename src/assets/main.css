@@ -14,6 +14,7 @@
   --font-poppins: 'Poppins', sans-serif;
   --font-body: 'Poppins', sans-serif;
   --font-display: 'Jaro', sans-serif;
+  --color-transparent: transparent;
   /* ... остальные переменные ... */
 }
 
@@ -107,7 +108,6 @@
     font-weight: 600;
     font-style: normal;
   }
-  
 }
 @layer base {
   body {

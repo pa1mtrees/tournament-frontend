@@ -1,10 +1,10 @@
 <template>
  <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
-    <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-70 z-40 flex items-center justify-center p-4" @click.self="closeModal"> 
+    <div v-if="isOpen" class="fixed inset-0 bg-secondary/90 z-40 flex items-center justify-center p-4" @click.self="closeModal"> 
       <transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to-class="opacity-100 translate-y-0 sm:scale-100" leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100 translate-y-0 sm:scale-100" leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
         
         <section v-if="isOpen" class="max-w-xl p-6 mx-auto bg-[var(--color-primary)] rounded-md shadow-xl w-full overflow-hidden">
-            <h2 class="text-lg font-semibold text-[var(--color-myyellow)] capitalize font-['Jaro']">
+            <h2 class="text-2xl text-[var(--color-myred)] font-['Jaro']">
                 Edit Team Details
             </h2>
 
@@ -28,11 +28,11 @@
                     <!-- {/* --- НОВОЕ: Загрузка Логотипа --- */} -->
                     <div>
                         <label class="label-style" for="teamLogoUpload">Team Logo</label>
-                        <div class="mt-1 flex items-center space-x-4">
+                        <div class="mt-1 flex items-center poppins space-x-2">
                             <!-- {/* Предпросмотр */} -->
                             <img v-if="imagePreviewUrl" :src="imagePreviewUrl" alt="Logo Preview" class="w-16 h-16 rounded-md object-cover bg-[var(--color-secondary)]">
                             <img v-else-if="props.currentTeam?.logo_url" :src="props.currentTeam.logo_url" alt="Current Logo" class="w-16 h-16 rounded-md object-cover bg-[var(--color-secondary)]">
-                            <div v-else class="w-16 h-16 rounded-md bg-[var(--color-secondary)] flex items-center justify-center text-[var(--color-text-muted)] text-sm">No Logo</div>
+                            <div v-else class="w-16 h-16 rounded-md bg-[var(--color-secondary)] flex items-center justify-center text-center text-[var(--color-text-muted)] text-sm">No Logo</div>
                             
                             <input 
                                 id="teamLogoUpload" 
@@ -43,8 +43,8 @@
                                        file:mr-4 file:py-2 file:px-4
                                        file:rounded-md file:border-0
                                        file:text-sm file:font-semibold
-                                       file:bg-[var(--color-myyellow)] file:text-[var(--color-primary)]
-                                       hover:file:bg-opacity-80"
+                                       file:bg-[var(--color-myred)] file:text-[var(--color-text-light)]
+                                       hover:file:bg-[var(--color-myreddarker)]"
                             />
                         </div>
                         <p class="text-xs text-[var(--color-text-muted)] mt-1">Max 2MB. PNG, JPG, WEBP, SVG.</p>
@@ -57,8 +57,8 @@
                 <div v-if="successMsg" class="text-green-500 text-sm text-center mt-4"> {{ successMsg }} </div>
 
                 <div class="flex justify-end mt-6 space-x-3">
-                     <button type="button" @click="closeModal" :disabled="isLoading" class="..."> Cancel </button>
-                     <button type="submit" :disabled="isLoading || (!isChanged && !selectedFile)" class="...">
+                     <button type="button" @click="closeModal" :disabled="isLoading" class="poppins px-4 py-2 text-sm font-medium rounded-md border border-myred text-[var(--color-myred)] hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"> Cancel </button>
+                     <button type="submit" :disabled="isLoading || (!isChanged && !selectedFile)" class="poppins px-4 py-2 text-sm font-medium rounded-md border border-transparent shadow-sm text-[var(--color-text-light)] bg-[var(--color-myred)] hover:bg-[var(--color-myreddarker)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-myyellow)]">
                        <span v-if="!isLoading">Save Changes</span>
                        <span v-else>Saving...</span>
                     </button>
