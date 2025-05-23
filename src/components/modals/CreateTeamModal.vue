@@ -53,13 +53,6 @@
                     <p v-if="sportsError" class="text-xs text-red-500 mt-1">{{ sportsError }}</p>
                   </div>
   
-                  <div>
-                    <label class="block text-sm font-medium text-[var(--color-text-muted)]">Team Logo (Optional)</label>
-                    <div class="mt-1 p-4 text-center border-2 border-dashed border-[var(--color-secondary)] rounded-md text-[var(--color-text-muted)]">
-                      Logo upload coming soon...
-                    </div>
-                  </div>
-  
                    <div v-if="errorMsg" class="text-red-500 text-sm text-center pt-2">
                       {{ errorMsg }}
                    </div>
@@ -150,7 +143,7 @@
       });
   
       // Успех
-      successMsg.value = `Team "${teamName}" created successfully!`;
+      successMsg.value = `Team created successfully!`;
       emit('teamCreated', response.data); // Отправляем событие с созданной командой
   
       // Закрываем модалку через небольшую задержку

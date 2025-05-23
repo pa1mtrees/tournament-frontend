@@ -14,7 +14,7 @@
           v-if="displayLogoUrl" 
           :src="displayLogoUrl" 
           alt="Tournament Logo" 
-          class="object-contain w-full h-full p-1" 
+          class="object-cover w-full h-full" 
         />
         <span v-else class="text-3xl text-[var(--color-myyellow)]">🏆</span> 
     </div>
@@ -60,7 +60,7 @@
     <div class="relative z-10 ml-auto self-center flex-shrink-0">
        <router-link 
         :to="{ name: 'tournament-detail', params: { id: tournament.id } }"
-        class="poppins bg-myred text-white text-sm px-4 py-2 md:px-6 rounded-xl hover:bg-myreddarker font-bold whitespace-nowrap" 
+        class="poppins text-sm bg-myred hover:bg-myreddarker px-3 py-1.5 rounded-lg text-[var(--color-text-light)] font-semibold transition duration-200 ease-in-out shadow-lg shadow-secondary/70 flex items-center" 
       >
         Details &gt;
       </router-link>

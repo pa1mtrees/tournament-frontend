@@ -69,7 +69,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function login(credentials) {
     try {
-      const response = await apiClient.post('/users/signin', {
+      const response = await apiClient.post('/auth/signin', {
         email: credentials.email,     
         password: credentials.password, 
       });
@@ -115,7 +115,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function register(userData) {
     try {
        // Отправляем POST запрос на /users/signup с правильными ключами JSON
-      const response = await apiClient.post('/users/signup', {
+      const response = await apiClient.post('/auth/signup', {
         first_name: userData.firstName, // Используем first_name
         last_name: userData.lastName,   // Используем last_name
         email: userData.email,

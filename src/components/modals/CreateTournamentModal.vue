@@ -21,7 +21,7 @@
               <div>
                 <label class="label-style" for="tournamentLogoUpload">Tournament Logo (Optional)</label>
                 <div class="mt-1 flex items-center space-x-4">
-                    <img v-if="logoPreviewUrl" :src="logoPreviewUrl" alt="Logo Preview" class="w-16 h-16 rounded-md object-cover bg-[var(--color-secondary)]">
+                    <img v-if="logoPreviewUrl" :src="logoPreviewUrl" alt="Logo Preview" class="w-16 h-16 rounded-md object-contain bg-[var(--color-secondary)]">
                     <div v-else class="w-16 h-16 rounded-md bg-[var(--color-secondary)] flex items-center justify-center text-[var(--color-text-muted)] text-sm">Preview</div>
                     
                     <input 
@@ -33,7 +33,7 @@
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-md file:border-0
                                 file:text-sm file:font-semibold
-                                file:bg-[var(--color-myyellow)] file:text-[var(--color-primary)]
+                                file:bg-[var(--color-myred)] file:text-[var(--color-text-light)]
                                 hover:file:bg-opacity-80 cursor-pointer"
                     />
                 </div>
@@ -52,20 +52,17 @@
                 </div>
                  <div>
                   <label for="tFormatModal" class="label-style">Format</label>
-                    <select id="tFormat" v-model="tournamentData.format_id" required class="select-style-modal">
+                      <select id="tFormatModal" v-model="tournamentData.format_id" required class="select-style-modal">
                        <option value="" disabled>Select format</option>
-                       {/* TODO: Заменить на metaStore.formats */}
-                       <option value="1">Single Elimination</option>
-                       <option value="2">Round Robin</option>
-                       <option value="3">Swiss</option>
-                    </select>
+                       <option v-for="format in metaStore.formats" :key="format.id" :value="format.id">{{ format.bracket_type }}</option>
+                      </select>
                    <p v-if="metaStore.formatsLoading" class="text-xs text-[var(--color-text-muted)] mt-1">Loading formats...</p>
                    <p v-if="metaStore.formatsError" class="text-xs text-red-500 mt-1">{{ metaStore.formatsError }}</p>
                 </div>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                  <div>
-                     <label for="tRegDateModal" class="label-style">Registration Ends</label>
+                     <label for="tRegDateModal" class="label-style">Registration Starts</label>
                      <input id="tRegDateModal" v-model="tournamentData.reg_date" type="datetime-local" required class="input-style">
                  </div>
                  <div>
@@ -246,6 +243,10 @@ watch(() => props.isOpen, (newVal) => {
         if (metaStore.sports.length === 0 && !metaStore.sportsLoading) {
             metaStore.fetchSports(); 
         } 
+        // Add this block to fetch formats
+        if (metaStore.formats.length === 0 && !metaStore.formatsLoading) { // Assuming similar state names for formats
+            metaStore.fetchFormats(); // Assuming a fetchFormats method exists in your metaStore
+        }
     } 
 });
  

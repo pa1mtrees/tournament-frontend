@@ -46,11 +46,11 @@
                  <label for="sortOrder" class="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Sort By (Client-side)</label>
                  <select id="sortOrder" v-model="selectedSort" class="select-style"> ... </select>
             </div>
-             <div class="self-end">
+             <div class="self-end mb-1">
               <button 
                 v-if="authStore.userRole === 'player' || authStore.userRole === 'organizer'"
                 @click="openCreateTournamentModal" 
-                class="w-full bg-[var(--color-myred)] text-[var(--color-text-light)] px-4 py-1.5 rounded-[0.7vw] text-sm font-medium">
+                class="poppins text-sm w-full bg-myred hover:bg-myreddarker px-3 py-1.5 rounded-lg text-[var(--color-text-light)] font-semibold transition duration-200 ease-in-out shadow-lg shadow-secondary/70">
                 Create Tournament
               </button>
              </div>
@@ -76,12 +76,14 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import TournamentCard from '@/components/cards/TournamentCard.vue'; 
 import CreateTournamentModal from '@/components/modals/CreateTournamentModal.vue';
 import { useAuthStore } from '@/stores/authStore';
 import { useMetaStore } from '@/stores/metaStore'; // Используем metaStore
 import apiClient from '@/services/apiClient';
 
+const route = useRoute();
 const authStore = useAuthStore(); // Получаем auth store для проверки роли
 const metaStore = useMetaStore(); // Инициализируем metaStore
 
@@ -102,17 +104,24 @@ const fetchTournaments = async () => {
   errorMsg.value = '';
   console.log("Fetching tournaments from API with filters:", { status: selectedStatus.value, sport_id: selectedSportId.value });
 
-  const params = { limit: 100, offset: 0 }; // Загружаем больше для клиентской фильтрации
+  const params = { limit: 100, offset: 0 }; 
   if (selectedStatus.value !== 'all') params.status = selectedStatus.value;
-  if (selectedSportId.value !== null) params.sport_id = selectedSportId.value;
+  // Ensure selectedSportId.value is used for the API call if it's set
+  if (selectedSportId.value !== null && selectedSportId.value !== undefined) {
+    params.sport_id = selectedSportId.value;
+  }
   
   try {
     const response = await apiClient.get('/tournaments', { params: params });
     tournaments.value = response.data?.tournaments || []; 
     console.log("Tournaments loaded:", tournaments.value.length);
-  } catch (err) { /* ... обработка ошибок ... */ } 
+  } catch (err) { 
+    console.error("Error fetching tournaments:", err);
+    errorMsg.value = err.response?.data?.message || err.message || "Failed to load tournaments.";
+  } 
   finally { isLoading.value = false; }
 };
+
 
 // --- Computed свойство для фильтрации и сортировки ---
 const displayTournaments  = computed(() => {
@@ -131,7 +140,7 @@ const displayTournaments  = computed(() => {
   }
   
   // 3. Фильтрация по виду спорта
-  if (selectedSportId.value !== null) {
+  if (selectedSportId.value !== null && selectedSportId.value !== undefined) {
       result = result.filter(t => t.sport_id === selectedSportId.value);
   }
 
@@ -168,17 +177,50 @@ const displayTournaments  = computed(() => {
 // Функции модального окна
 const openCreateTournamentModal = () => { isCreateTournamentModalOpen.value = true; };
 const closeCreateTournamentModal = () => { isCreateTournamentModalOpen.value = false; };
-const handleTournamentCreated = (newTournament) => { /* ... */ };
+const handleTournamentCreated = (newTournament) => { 
+  tournaments.value.push(newTournament); // Добавляем новый турнир в массив
+  closeCreateTournamentModal(); // Закрываем модалку
+  fetchTournaments();
+};
 
 // Следим за фильтрами и перезагружаем
 watch([selectedStatus, selectedSportId], () => { fetchTournaments(); });
 
 // Загружаем начальные данные
-onMounted(() => {
-  fetchTournaments(); 
-  metaStore.fetchSports(); // Вызываем загрузку спортов из store
-  metaStore.fetchFormats(); // Загружаем форматы
+onMounted(async () => {
+  // Fetch metadata first, as it might be needed to validate sportIdFromQuery
+  if (!metaStore.sports || metaStore.sports.length === 0) {
+    await metaStore.fetchSports();
+  }
+  if (!metaStore.formats || metaStore.formats.length === 0) {
+    await metaStore.fetchFormats();
+  }
 
+  const sportIdFromQuery = route.query.sportId;
+  let sportIdAppliedFromQuery = false;
+
+  if (sportIdFromQuery) {
+    const parsedSportId = parseInt(sportIdFromQuery, 10);
+    // Check if the sportId from query is a valid one from the fetched sports
+    if (!isNaN(parsedSportId) && metaStore.sports.some(s => s.id === parsedSportId)) {
+      selectedSportId.value = parsedSportId; // This will trigger the watcher
+      sportIdAppliedFromQuery = true;
+    } else if (!isNaN(parsedSportId)) {
+      // If it's a number but not in the list, log a warning.
+      // selectedSportId will remain null, and all sports (or based on other filters) will be fetched.
+      console.warn(`Sport ID ${parsedSportId} from query not found in available sports. Showing all or default.`);
+    }
+  }
+
+  // If selectedSportId was NOT set/changed by the query parameter,
+  // the watcher for selectedSportId won't fire. In this case,
+  // we need to explicitly call fetchTournaments for the initial load
+  // with default filters (e.g., selectedSportId is still null).
+  if (!sportIdAppliedFromQuery) {
+    fetchTournaments();
+  }
+  // If sportIdAppliedFromQuery is true, the watcher on selectedSportId
+  // will have already triggered fetchTournaments().
 });
 
 </script>

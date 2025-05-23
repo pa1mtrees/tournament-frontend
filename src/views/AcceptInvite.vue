@@ -48,7 +48,7 @@
       // --- ВАЖНО: Нужен новый эндпоинт на бэке! ---
       // Например: const response = await apiClient.post('/invites/accept', { token: props.inviteToken });
       // ИЛИ если использовать токен в URL:
-      const response = await apiClient.post(`/invites/${props.inviteToken}`); // Отправляем POST на бэк эндпоинт, который определил ваш тиммейт
+      const response = await apiClient.post(`/invites/join/${props.inviteToken}`); // Отправляем POST на бэк эндпоинт, который определил ваш тиммейт
   
       // Обрабатываем успешный ответ
       successMsg.value = response.data?.message || 'Successfully joined team!'; 

@@ -30,37 +30,14 @@
                         type="file" 
                         @change="handleLogoFileChange" 
                         accept="image/png, image/jpeg, image/webp, image/svg+xml"
-                        class="block w-full text-sm text-[var(--color-text-muted)] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[var(--color-myyellow)] file:text-[var(--color-primary)] hover:file:bg-opacity-80 cursor-pointer"
+                        class="block w-full text-sm text-[var(--color-text-muted)] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[var(--color-myred)] file:text-[var(--color-text-light)] hover:file:bg-opacity-80 cursor-pointer"
                     />
                 </div>
                 <p class="text-xs text-[var(--color-text-muted)] mt-1">Max 2MB. Select a new file to change the logo.</p>
               </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label for="editTournamentSport" class="label-style">Sport</label>
-                  <select id="editTournamentSport" v-model="editableTournamentData.sport_id" required class="select-style-modal">
-                     <option value="" disabled>Select sport</option>
-                     <option v-for="sport in metaStore.sports" :key="sport.id" :value="sport.id">{{ sport.name }}</option>
-                  </select>
-                  <p v-if="metaStore.sportsLoading" class="text-xs text-[var(--color-text-muted)] mt-1">Loading...</p>
-                  <p v-if="metaStore.sportsError" class="text-xs text-red-500 mt-1">{{ metaStore.sportsError }}</p>
-                </div>
-                 <div>
-                  <label for="editTournamentFormat" class="label-style">Format</label>
-                  <select id="editTournamentFormat" v-model="editableTournamentData.format_id" required class="select-style-modal">
-                       <option value="" disabled>Select format</option>
-                       <option value="1">Single Elimination</option>
-                       <option value="2">Round Robin</option>
-                       <option value="3">Swiss</option>
-                  </select>
-                   <p v-if="metaStore.formatsLoading" class="text-xs text-[var(--color-text-muted)] mt-1">Loading formats...</p>
-                   <p v-if="metaStore.formatsError" class="text-xs text-red-500 mt-1">{{ metaStore.formatsError }}</p>
-                </div>
-              </div>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                  <div>
-                     <label for="editTournamentRegDate" class="label-style">Registration Ends</label>
+                     <label for="editTournamentRegDate" class="label-style">Registration Starts</label>
                      <input id="editTournamentRegDate" v-model="editableTournamentData.reg_date" type="datetime-local" required class="input-style">
                  </div>
                  <div>
@@ -118,8 +95,6 @@ const editableTournamentData = reactive({
   id: null,
   name: '',
   description: '',
-  sport_id: '',    
-  format_id: '',   
   reg_date: '',
   start_date: '',
   end_date: '',
@@ -154,8 +129,6 @@ const populateForm = () => {
         editableTournamentData.id = props.tournament.id;
         editableTournamentData.name = props.tournament.name || '';
         editableTournamentData.description = props.tournament.description || '';
-        editableTournamentData.sport_id = props.tournament.sport_id ? Number(props.tournament.sport_id) : '';
-        editableTournamentData.format_id = props.tournament.format_id ? Number(props.tournament.format_id) : '';
         editableTournamentData.reg_date = formatDateTimeForInput(props.tournament.reg_date);
         editableTournamentData.start_date = formatDateTimeForInput(props.tournament.start_date);
         editableTournamentData.end_date = formatDateTimeForInput(props.tournament.end_date);
@@ -163,7 +136,7 @@ const populateForm = () => {
         editableTournamentData.max_participants = props.tournament.max_participants || '';
         currentLogoUrl.value = props.tournament.logo_url || ''; 
     } else {
-        Object.assign(editableTournamentData, { id: null, name: '', description: '', sport_id: '', format_id: '', reg_date: '', start_date: '', end_date: '', location: '', max_participants: '' });
+        Object.assign(editableTournamentData, { id: null, name: '', description: '', reg_date: '', start_date: '', end_date: '', location: '', max_participants: '' });
         currentLogoUrl.value = '';
     }
 };
@@ -171,8 +144,6 @@ const populateForm = () => {
 watch(() => props.isOpen, (newVal) => { 
     if (newVal) {
         populateForm(); // Заполняем и сбрасываем сообщения при открытии
-        if (metaStore.sports.length === 0 && !metaStore.sportsLoading) metaStore.fetchSports();
-        if (metaStore.formats.length === 0 && !metaStore.formatsLoading) metaStore.fetchFormats();
     } 
 }, { immediate: true });
 
@@ -181,8 +152,6 @@ const isFormChanged = computed(() => {
     const detailsChanged = 
         editableTournamentData.name !== (props.tournament.name || '') ||
         editableTournamentData.description !== (props.tournament.description || null) ||
-        Number(editableTournamentData.sport_id) !== (props.tournament.sport_id || '') ||
-        Number(editableTournamentData.format_id) !== (props.tournament.format_id || '') ||
         formatDateTimeForInput(editableTournamentData.reg_date) !== formatDateTimeForInput(props.tournament.reg_date) ||
         formatDateTimeForInput(editableTournamentData.start_date) !== formatDateTimeForInput(props.tournament.start_date) ||
         formatDateTimeForInput(editableTournamentData.end_date) !== formatDateTimeForInput(props.tournament.end_date) ||
@@ -215,10 +184,10 @@ const handleSaveChanges = async () => {
   if (!isFormChanged.value) {
     successMsg.value = 'No changes to save.'; 
     isLoading.value = false; 
-    await nextTick(); // Даем Vue время отрендерить successMsg
+    await nextTick(); 
     console.log('handleSaveChanges: No changes. SuccessMsg:', successMsg.value, 'ErrorMsg:', errorMsg.value);
     setTimeout(() => {
-        emit('close'); // Просто закрываем, resetForm вызовется при следующем открытии
+        emit('close'); 
     }, 2500); 
     return;
   }
@@ -231,18 +200,34 @@ const handleSaveChanges = async () => {
   let finalTournamentData = { ...props.tournament, ...editableTournamentData }; 
 
   const detailsPayload = {};
+  // Textual and numeric fields
   if (editableTournamentData.name !== (props.tournament.name || '')) detailsPayload.name = editableTournamentData.name;
-  if (editableTournamentData.description !== (props.tournament.description || null)) detailsPayload.description = editableTournamentData.description || null;
-  if (formatDateTimeForInput(editableTournamentData.reg_date) !== formatDateTimeForInput(props.tournament.reg_date)) detailsPayload.reg_date = editableTournamentData.reg_date ? new Date(editableTournamentData.reg_date).toISOString() : null;
-  if (formatDateTimeForInput(editableTournamentData.start_date) !== formatDateTimeForInput(props.tournament.start_date)) detailsPayload.start_date = editableTournamentData.start_date ? new Date(editableTournamentData.start_date).toISOString() : null;
-  if (formatDateTimeForInput(editableTournamentData.end_date) !== formatDateTimeForInput(props.tournament.end_date)) detailsPayload.end_date = editableTournamentData.end_date ? new Date(editableTournamentData.end_date).toISOString() : null;
-  if (editableTournamentData.location !== (props.tournament.location || null)) detailsPayload.location = editableTournamentData.location || null;
-  if (editableTournamentData.max_participants !== '' && Number(editableTournamentData.max_participants) !== (props.tournament.max_participants || 0)) detailsPayload.max_participants = parseInt(editableTournamentData.max_participants);
+  if (editableTournamentData.description !== (props.tournament.description || null)) detailsPayload.description = editableTournamentData.description || null; // Send null if empty, matching prop
+  if (editableTournamentData.location !== (props.tournament.location || null)) detailsPayload.location = editableTournamentData.location || null; // Send null if empty
+  if (editableTournamentData.max_participants !== '' && Number(editableTournamentData.max_participants) !== (props.tournament.max_participants || 0)) {
+    detailsPayload.max_participants = parseInt(editableTournamentData.max_participants);
+  }
+
+  // Date fields - Corrected logic
+  const initialRegDateStr = formatDateTimeForInput(props.tournament.reg_date);
+  if (editableTournamentData.reg_date !== initialRegDateStr) {
+    detailsPayload.reg_date = editableTournamentData.reg_date ? new Date(editableTournamentData.reg_date + 'Z').toISOString() : null;
+  }
+
+  const initialStartDateStr = formatDateTimeForInput(props.tournament.start_date);
+  if (editableTournamentData.start_date !== initialStartDateStr) {
+    detailsPayload.start_date = editableTournamentData.start_date ? new Date(editableTournamentData.start_date + 'Z').toISOString() : null;
+  }
+
+  const initialEndDateStr = formatDateTimeForInput(props.tournament.end_date);
+  if (editableTournamentData.end_date !== initialEndDateStr) {
+    detailsPayload.end_date = editableTournamentData.end_date ? new Date(editableTournamentData.end_date + 'Z').toISOString() : null;
+  }
   
   if (Object.keys(detailsPayload).length > 0) {
       try {
           const response = await apiClient.put(`/tournaments/${editableTournamentData.id}`, detailsPayload);
-          finalTournamentData = response.data?.tournament || finalTournamentData;
+          finalTournamentData = { ...finalTournamentData, ...(response.data?.tournament || {}) }; // Merge updated fields
           detailsUpdatedSuccessfully = true;
       } catch (err) {
           errorMsg.value = err.response?.data?.message || 'Failed to update tournament details.';
@@ -258,17 +243,20 @@ const handleSaveChanges = async () => {
       const logoResponse = await apiClient.post(
           `/tournaments/${editableTournamentData.id}/logo`, 
           logoFormData,
-          { headers: { 'Content-Type': undefined } }
+          { headers: { 'Content-Type': undefined } } // Axios handles multipart/form-data
       );
-      finalTournamentData = logoResponse.data?.tournament || finalTournamentData; 
+      finalTournamentData = { ...finalTournamentData, ...(logoResponse.data?.tournament || {}) }; // Merge updated logo URL
       logoUploadedSuccessfully = true;
     } catch (err) {
       const logoUploadError = `Logo upload failed: ${err.response?.data?.message || err.message}`;
       errorMsg.value = errorMsg.value ? `${errorMsg.value} ${logoUploadError}` : logoUploadError;
+      // Do not return here if details update was successful, allow partial success message
     }
   }
   
   isLoading.value = false;
+
+  let anUpdateOccurred = detailsUpdatedSuccessfully || logoUploadedSuccessfully;
 
   if (detailsUpdatedSuccessfully && logoUploadedSuccessfully) {
       successMsg.value = 'Tournament details and logo updated successfully!';
@@ -276,20 +264,23 @@ const handleSaveChanges = async () => {
       successMsg.value = 'Tournament details updated successfully.';
   } else if (logoUploadedSuccessfully) {
       successMsg.value = 'Logo updated successfully!';
-  } else if (!errorMsg.value && !isFormChanged.value) { // Если isFormChanged стал false после попыток (маловероятно)
-      successMsg.value = 'No effective changes were saved.';
+  } else if (!errorMsg.value && isFormChanged.value) { 
+      successMsg.value = 'No effective changes were applied.';
   }
-  // Если есть только errorMsg, successMsg останется пустым
+ 
+  if (anUpdateOccurred) { 
+    emit('tournamentUpdated', finalTournamentData); 
+  }
 
   if (successMsg.value || errorMsg.value) { 
-    emit('tournamentUpdated', finalTournamentData); 
-    await nextTick(); // Даем Vue время отрендерить сообщение
+    await nextTick(); 
     console.log('handleSaveChanges: Final SuccessMsg:', successMsg.value, 'Final ErrorMsg:', errorMsg.value);
+    const timeoutDuration = errorMsg.value ? 3500 : 2500;
     setTimeout(() => {
-        emit('close'); // Просто закрываем
-    }, errorMsg.value ? 3500 : 2500); 
+        emit('close');
+    }, timeoutDuration); 
   } else {
-    emit('close'); // Закрываем, если нет сообщений (например, не было изменений)
+    emit('close'); 
   }
 };
  

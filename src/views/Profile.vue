@@ -17,22 +17,53 @@
     >
       <template #team-actions>
         <div v-if="authStore.user && authStore.user.team_id" class="flex justify-end items-center gap-2 flex-wrap mt-2">
-            <button v-if="isCaptainOfCurrentTeam" @click="openEditTeamModal" title="Edit Team Details" class="font-medium poppins bg-myred hover:bg-myreddarker text-[var(--color-text-light)] px-3 py-2 rounded-[0.7vw] transition-colors text-sm">Edit Team</button>
-            <button v-if="isCaptainOfCurrentTeam" @click="openInviteModal" class="font-medium poppins bg-myred hover:bg-myreddarker text-[var(--color-text-light)] px-3 py-2 rounded-[0.7vw] transition-colors text-sm">Invite Member</button>
-            <button v-if="isCaptainOfCurrentTeam" @click="confirmDeleteTeam" :disabled="isDeletingTeam" title="Delete Team" class="font-medium bg-transparent border border-myred text-myred hover:bg-myreddarker hover:text-white px-3 py-2 rounded-[0.7vw] transition-colors text-sm">
-              <span v-if="!isDeletingTeam">Delete Team</span>
-              <span v-else>Deleting...</span>
-            </button>
+            <button v-if="isCaptainOfCurrentTeam" @click="openEditTeamModal" title="Edit Team Details" class="bg-myred hover:bg-myreddarker px-3 py-1.5 rounded-lg text-[var(--color-text-light)] font-semibold transition duration-200 ease-in-out shadow-lg shadow-secondary/70 flex items-center">Edit Team</button>
+            <button v-if="isCaptainOfCurrentTeam" @click="openInviteModal" class="bg-myred hover:bg-myreddarker px-3 py-1.5 rounded-lg text-[var(--color-text-light)] font-semibold transition duration-200 ease-in-out shadow-lg shadow-secondary/70 flex items-center">Invite Member</button>
+        <BasePopConfirm
+        :visible="showDeleteTeamConfirm"
+        :team-name="authStore.user?.team?.name || 'this team'"
+        @confirm="handleDeleteTeamConfirm"
+        @cancel="handleDeleteTeamCancel"
+        >
+        <button
+            v-if="isCaptainOfCurrentTeam"
+            @click="showDeleteTeamConfirm = true"
+            :disabled="isDeletingTeam"
+            class="font-medium bg-transparent border border-myred text-myred hover:bg-myreddarker hover:text-white px-3 py-2 rounded-lg transition-colors text-sm"
+        >
+            <span v-if="!isDeletingTeam">Delete Team</span>
+            <span v-else>Deleting...</span>
+        </button>
+        </BasePopConfirm>
+        
+        <BasePopConfirm
+        :visible="showLeaveTeamConfirm"
+        message="Are you sure you want to leave this team?"
+        @confirm="handleLeaveTeamConfirm"
+        @cancel="handleLeaveTeamCancel"
+        >
+        <button 
+            v-if="authStore.user?.team_id && !isCaptainOfCurrentTeam"
+            @click="showLeaveTeamConfirm = true"
+            :disabled="isLeavingTeam"
+            title="Leave Team"
+            class="text-sm bg-myred hover:bg-myreddarker px-3 py-1.5 rounded-lg text-[var(--color-text-light)] font-semibold transition duration-200 ease-in-out shadow-lg shadow-secondary/70 flex items-center"
+        >
+            <span v-if="!isLeavingTeam">Leave Team</span>
+            <span v-else>Leaving...</span>
+        </button>
+        </BasePopConfirm>
         </div>
          <p v-if="removeMemberError" class="text-red-500 text-sm text-right mt-2">{{ removeMemberError }}</p>
          <p v-if="deleteTeamError" class="text-red-500 text-sm text-right mt-2">{{ deleteTeamError }}</p>
+         <p v-if="leaveTeamError" class="text-red-500 text-sm text-right mt-2">{{ leaveTeamError }}</p>
       </template>
       
       <template #create-team-action>
          <button 
             v-if="authStore.user && !authStore.user.team_id"
             @click="openCreateTeamModal"
-            class="bg-[var(--color-myyellow)] text-[var(--color-primary)] px-4 py-1.5 rounded-[0.7vw] hover:text-[var(--color-myred)] transition-colors text-sm font-medium"
+            class="bg-myred hover:bg-myreddarker px-3 py-1.5 rounded-lg text-[var(--color-text-light)] font-semibold transition duration-200 ease-in-out shadow-lg shadow-secondary/70"
            >
               Create Team
            </button>
@@ -43,7 +74,7 @@
     <EditProfileModal v-if="authStore.user" :is-open="isEditProfileModalOpen" :current-user="authStore.user" @close="closeEditProfileModal" @profile-updated="handleProfileUpdated" />
     <InviteTeamMemberModal v-if="authStore.user?.team?.id" :is-open="isInviteModalOpen" :team-id="authStore.user.team.id" @close="closeInviteModal" />
     <EditTeamModal v-if="authStore.user?.team" :is-open="isEditTeamModalOpen" :current-team="authStore.user.team" @close="closeEditTeamModal" @team-updated="handleTeamUpdated" />
-  </div>
+</div>
 </template>
 
 <script setup>
@@ -51,12 +82,14 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import { useMetaStore } from '@/stores/metaStore'; 
 import apiClient from '@/services/apiClient';
+import { ElMessage } from 'element-plus';
 
 import UserDisplayDetails from '@/components/profile/UserDisplayDetails.vue';
 import CreateTeamModal from '@/components/modals/CreateTeamModal.vue'; 
 import EditProfileModal from '@/components/modals/EditProfileModal.vue'; 
 import InviteTeamMemberModal from '@/components/modals/InviteTeamMemberModal.vue'; 
 import EditTeamModal from '@/components/modals/EditTeamModal.vue'; 
+import BasePopConfirm from '@/components/ui/BasePopConfirm.vue';
 
 const authStore = useAuthStore();
 const metaStore = useMetaStore(); 
@@ -78,6 +111,37 @@ const isRemovingMember = ref(null);
 const removeMemberError = ref('');
 const isDeletingTeam = ref(false);
 const deleteTeamError = ref('');
+
+const isLeavingTeam = ref(false);
+const leaveTeamError = ref('');
+
+const showDeleteTeamConfirm = ref(false);
+const showLeaveTeamConfirm = ref(false);
+const confirmDeleteTeam = () => {
+  deleteTeamError.value = '';
+  showDeleteTeamConfirm.value = true;
+};
+
+const confirmLeaveTeam = () => {
+  leaveTeamError.value = '';
+  showLeaveTeamConfirm.value = true;
+};
+
+const handleDeleteTeamConfirm = () => {
+  showDeleteTeamConfirm.value = false;
+  deleteTeam();
+};
+const handleDeleteTeamCancel = () => {
+  showDeleteTeamConfirm.value = false;
+};
+
+const handleLeaveTeamConfirm = () => {
+  showLeaveTeamConfirm.value = false;
+  leaveTeam();
+};
+const handleLeaveTeamCancel = () => {
+  showLeaveTeamConfirm.value = false;
+};
 
 const formattedJoinDate = computed(() => { 
     if (!authStore.user?.created_at) return '';
@@ -134,28 +198,64 @@ const removeMember = async (memberIdToRemove) => {
     isRemovingMember.value = memberIdToRemove; removeMemberError.value = '';
     try {
         await apiClient.delete(`/teams/${authStore.user.team.id}/members/${memberIdToRemove}`);
+        ElMessage.success('Member removed successfully.');
         await fetchTeamMembers(authStore.user.team.id); 
-    } catch (err) { removeMemberError.value = err.response?.data?.message || 'Failed to remove member.'; } 
-    finally { isRemovingMember.value = null; }
+    } catch (err) { 
+        removeMemberError.value = err.response?.data?.message || 'Failed to remove member.'; 
+        ElMessage.error(removeMemberError.value);
+    } finally { isRemovingMember.value = null; }
 };
 
-const confirmDeleteTeam = () => {
-    deleteTeamError.value = '';
-    const teamName = authStore.user?.team?.name || 'this team';
-    if (window.confirm(`Are you sure you want to permanently delete the team "${teamName}"? This action cannot be undone.`)) {
-        deleteTeam();
-    }
-};
+// const confirmDeleteTeam = () => {
+//     deleteTeamError.value = '';
+//     const teamName = authStore.user?.team?.name || 'this team';
+//     if (window.confirm(`Are you sure you want to permanently delete the team "${teamName}"? This action cannot be undone.`)) {
+//         deleteTeam();
+//     }
+// };
 
 const deleteTeam = async () => {
     if (!authStore.user?.team?.id) return;
     isDeletingTeam.value = true; deleteTeamError.value = '';
     try {
         await apiClient.delete(`/teams/${authStore.user.team.id}`);
-        alert('Team deleted successfully!'); 
+        ElMessage.success('Team deleted successfully!'); 
         await authStore.fetchUser(authStore.userId); 
-    } catch (err) { deleteTeamError.value = err.response?.data?.message || 'Failed to delete team. Please kick all the members first.'; } 
-    finally { isDeletingTeam.value = false; }
+    } catch (err) { 
+        deleteTeamError.value = err.response?.data?.message || 'Failed to delete team. Please kick all the members first.';
+        ElMessage.error(deleteTeamError.value);
+    } finally { isDeletingTeam.value = false; }
+};
+
+// const confirmLeaveTeam = () => {
+//     leaveTeamError.value = '';
+//     if (window.confirm('Are you sure you want to leave this team?')) {
+//         leaveTeam();
+//     }
+// };
+
+const leaveTeam = async () => {
+    if (!authStore.user?.team?.id || !authStore.userId || isCaptainOfCurrentTeam.value) {
+        leaveTeamError.value = "Cannot leave team. Captains must delete the team or transfer captaincy.";
+        ElMessage.error(leaveTeamError.value);
+        return;
+    }
+    isLeavingTeam.value = true;
+    leaveTeamError.value = '';
+    try {
+        // Используем эндпоинт удаления участника, передавая ID текущего пользователя
+        await apiClient.delete(`/teams/${authStore.user.team.id}/members/${authStore.userId}`);
+        ElMessage.success('You have successfully left the team.');
+        // Обновляем данные пользователя, чтобы team_id и team стали null
+        await authStore.fetchUser(authStore.userId);
+        // teamMembers обновится через watch
+    } catch (err) {
+        console.error("Error leaving team:", err);
+        leaveTeamError.value = err.response?.data?.message || 'Failed to leave team.';
+        ElMessage.error(leaveTeamError.value);
+    } finally {
+        isLeavingTeam.value = false;
+    }
 };
 
 watch(() => authStore.user?.team_id, (newTeamId) => { fetchTeamMembers(newTeamId); }, { immediate: true } );
@@ -163,10 +263,10 @@ watch(() => authStore.userId, (newUserId) => { if(newUserId) fetchMyOrganizedTou
 
 onMounted(() => {
   if (metaStore.sports.length === 0) metaStore.fetchSports();
-  // if (metaStore.formats.length === 0) metaStore.fetchFormats(); 
+  //if (metaStore.formats.length === 0) metaStore.fetchFormats(); 
 });
 </script>
 
 <style scoped>
-/* Стили для страницы профиля */
+
 </style>

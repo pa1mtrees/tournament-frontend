@@ -54,8 +54,8 @@ export const useMetaStore = defineStore('meta', () => {
             // Запрос к GET /formats
             const response = await apiClient.get('/formats'); 
             // Ожидаем массив [ { id: ..., name: ... }, ... ]
-            formats.value = response.data || []; // Предполагаем, что бэк возвращает массив напрямую
-             // Если бэк возвращает { "formats": [...] }, то нужно response.data.formats
+            // Correctly access the nested 'formats' array
+            formats.value = response.data?.formats || []; 
             console.log('Formats loaded in store:', formats.value);
         } catch (err) {
             console.error("Error fetching formats in store:", err);

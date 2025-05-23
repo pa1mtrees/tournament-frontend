@@ -21,33 +21,44 @@
             <router-link to="/signup" class="login-button dynamic-text hover:text-[var(--color-text-light)] transition-colors">Sign Up</router-link>
           </div>
 
-          <div v-else>
-             <button @click="toggleUserDropdown" class="flex items-center fluid-space-x focus:outline-none">
-               <img 
-                  v-if="authStore.userAvatar" 
-                  :src="authStore.userAvatar" 
-                  alt="User Avatar" 
-                  class="w-8 h-8 object-cover rounded-lg" 
-               />
-               <div v-else class="w-8 h-8 rounded-full bg-[var(--color-secondary)] border-2 border-[var(--color-myyellow)] flex items-center justify-center text-sm text-[var(--color-text-light)]">?</div>
+          <div v-else class="flex items-center fluid-space-x">
+            <!-- "Get heartbit+" button -->
+            <router-link 
+              to="/plus"
+              class="login-button dynamic-text"
+            >
+              heartbit+
+            </router-link>
 
-               <span class="mobile-jaro dynamic-text text-[var(--color-text-light)]">
-                 {{ authStore.user.nickname || authStore.user.email }} 
-               </span>
+            <!-- User avatar, nickname, and dropdown -->
+            <div class="relative">
+              <button @click="toggleUserDropdown" class="flex items-center fluid-space-x focus:outline-none">
+          <img 
+              v-if="authStore.userAvatar" 
+              :src="authStore.userAvatar" 
+              alt="User Avatar" 
+              class="w-8 h-8 object-cover rounded-lg" 
+          />
+          <div v-else class="w-8 h-8 rounded-full bg-[var(--color-secondary)] border-2 border-[var(--color-myred)] flex items-center justify-center text-sm text-[var(--color-text-light)]">?</div>
 
-               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[var(--color-text-light)] ml-1 transition-transform duration-200" :class="{'rotate-180': isUserDropdownOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-               </svg>
-            </button>
-            
-            <transition  >
-              <div v-show="isUserDropdownOpen" @click="closeUserDropdown" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-[var(--color-primary)] ring-1 ring-[var(--color-secondary)] ring-opacity-5 focus:outline-none z-50">
-                <router-link to="/profile" class="block px-4 py-2 text-sm md:text-xl text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myyellow)]">My Profile</router-link>
-                <router-link to="/settings" class="block px-4 py-2 text-sm md:text-xl text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myyellow)]">Settings</router-link>
-                <hr class="border-t border-[var(--color-secondary)] my-1"/> 
-                <button @click="handleLogout" class="block w-full text-left px-4 py-2 text-sm md:text-lg mobile-jaro text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myred)]">Logout</button>
-              </div>
-            </transition>
+          <span class="mobile-jaro dynamic-text text-[var(--color-text-light)]">
+            {{ authStore.user.nickname || authStore.user.email }} 
+          </span>
+
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[var(--color-text-light)] ml-1 transition-transform duration-200" :class="{'rotate-180': isUserDropdownOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+              </button>
+              
+              <transition>
+          <div v-show="isUserDropdownOpen" @click="closeUserDropdown" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-[var(--color-primary)] ring-1 ring-[var(--color-secondary)] ring-opacity-5 focus:outline-none z-50">
+            <router-link to="/profile" class="block px-4 py-2 text-sm md:text-xl text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myred)]">My Profile</router-link>
+            <router-link to="/settings" class="block px-4 py-2 text-sm md:text-xl text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myred)]">Settings</router-link>
+            <hr class="border-t border-[var(--color-secondary)] my-1"/> 
+            <button @click="handleLogout" class="block w-full text-left px-4 py-2 text-sm md:text-lg mobile-jaro text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myred)]">Logout</button>
+          </div>
+              </transition>
+            </div>
           </div>
         </div>
       </div>
@@ -68,7 +79,7 @@
              </template>
              <template v-else>
                 <div class="flex items-center justify-center space-x-3 py-2">
-                   <img v-if="authStore.userAvatar" :src="authStore.userAvatar" alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-[var(--color-myyellow)]" />
+                   <img v-if="authStore.userAvatar" :src="authStore.userAvatar" alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-[var(--color-myred)]" />
                    <div v-else class="w-10 h-10 rounded-full ... flex items-center justify-center ...">
                      {{ authStore.username?.charAt(0).toUpperCase() }}
                    </div>

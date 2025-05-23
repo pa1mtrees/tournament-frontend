@@ -88,7 +88,7 @@
       <img 
         src="/src/assets/logback2.svg" 
         alt="Decorative graphic" 
-        class="w-full h-full object-fill lg:object-cover min-h-[calc(100vh-150px)] overflow-visible"
+        class="w-full h-full object-fill lg:object-cover min-h-[calc(100vh-150px)] overflow-visible animate-pulse"
         />
     </div>
  

@@ -3,12 +3,15 @@
 
 @theme {
   /* ... ваши цвета ... */
-  --color-primary: #1D2734;
-  --color-secondary: #161D27;
+  --color-primary: #171e28;
+  --color-secondary: #0f131a;
+  /* --color-primary: rgb(13, 12, 12);
+  --color-secondary: #111111; */
   --color-myyellow: #ffb300;
   --color-myyeldarker: #d89e18;
   --color-myred: #de2424;
   --color-myreddarker: #962b2b;
+  --color-myreddark: #bc4747;
   --color-text-light: #ffffff;
   --color-text-muted: #a0a0a0;
   --font-poppins: 'Poppins', sans-serif;
@@ -24,6 +27,24 @@
 }
 
 @layer utilities {
+.responsive-card {
+  @apply w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 2xl:w-32 2xl:h-32
+}
+.feature-card {
+  @apply bg-[var(--color-primary)] p-6 py-8 rounded-xl shadow-lg text-center flex flex-col items-center transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-2;
+  /* Добавлен более выраженный hover эффект */
+}
+.feature-icon-wrapper {
+  @apply w-16 h-16 rounded-full flex items-center justify-center mb-6 p-3;
+  /* Цвет фона и текста иконки задается через Tailwind классы в шаблоне */
+}
+.feature-title {
+  @apply text-xl font-semibold text-[var(--color-text-light)] mb-2 font-['Jaro']; /* Используем Jaro */
+}
+.feature-description {
+  @apply text-sm text-[var(--color-text-muted)] leading-relaxed;
+}
+
   .box-color {
     --el-empty-fill-color-1	: var(--color-myred);
   }
@@ -106,6 +127,11 @@
   .jersey {
     font-family: "Jersey 10", sans-serif;
     font-weight: 600;
+    font-style: normal;
+  }
+    .jersey-small {
+    font-family: "Jersey 10", sans-serif;
+    font-weight: 400;
     font-style: normal;
   }
 }

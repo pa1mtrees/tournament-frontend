@@ -36,7 +36,7 @@
         <div v-if="isOwnProfile" class="sm:ml-auto flex-shrink-0"> 
           <button 
             @click="$emit('openEditProfile')" 
-            class="inline-block poppins bg-[var(--color-myred)] text-[var(--color-text-light)] hover:bg-[var(--color-myreddarker)] px-5 py-2 rounded-[0.7vw] text-sm font-medium"
+            class="bg-myred hover:bg-myreddarker px-3 py-1.5 rounded-lg text-[var(--color-text-light)] font-semibold transition duration-200 ease-in-out shadow-lg shadow-secondary/70 flex items-center"
           >
             Edit Profile 
           </button> 
@@ -67,6 +67,7 @@
             <thead class="bg-[var(--color-secondary)] text-left">
               <tr>
                 <th class="p-3 text-[var(--color-text-light)] font-medium">
+                  <router-link :to="`/team/${user.team_id}`" class="flex items-center space-x-2">
                   <div class="flex text-center items-center space-x-2">
                     <img
                       v-if="user.team?.logo_url"
@@ -76,6 +77,7 @@
                     />
                     <h1 class="text-2xl text-[var(--color-text-light)]">{{ user.team?.name || '...' }}</h1>
                   </div>
+                  </router-link>
                 </th>
                 <th class="text-xl font-['Jaro'] p-3 text-[var(--color-text-light)] font-light text-right">Role</th>
                 <th
@@ -105,11 +107,11 @@
                     <div class="flex-grow">
                       <router-link
                         :to="{ name: 'user-profile', params: { id: member.id } }"
-                        class="font-medium text-[var(--color-text-light)] hover:text-[var(--color-myyellow)]"
+                        class="font-medium text-[var(--color-text-light)] hover:text-[var(--color-myred)]"
                       >
-                        {{ member.first_name }} {{ member.last_name }}
+                        {{ member.nickname || member.first_name + member.last_name }}
                         <span v-if="member.nickname" class="text-sm text-[var(--color-text-muted)]"
-                          >({{ member.nickname }})</span
+                          >({{ member.first_name + ' ' + member.last_name }})</span
                         >
                       </router-link>
                       <p class="text-xs text-[var(--color-text-muted)]">{{ member.email }}</p>
@@ -131,7 +133,7 @@
                     v-if="member.id !== currentUserId"
                     @click="$emit('requestRemoveMember', member)"
                     title="Remove Member"
-                    class="text-red-500 hover:text-red-700 p-1 disabled:opacity-50"
+                    class="text-red-500 hover:text-red-700 p-1 disabled:opacity-50 hover:scale-125 transition-transform duration-200 ease-in-out"
                     :disabled="isRemovingMemberId === member.id"
                   >
                     <span v-if="isRemovingMemberId === member.id">...</span>
@@ -274,7 +276,7 @@ const formattedUserJoinDate = computed(() => {
 })
 </script>
 
-<style scoped>
+<style>
 .el-empty {
   --el-empty-padding: 40px 0;
   --el-empty-image-width: 160px;
@@ -290,5 +292,10 @@ const formattedUserJoinDate = computed(() => {
   --el-empty-fill-color-7: #a0a0a0;
   --el-empty-fill-color-8: #e0e3e9;
   --el-empty-fill-color-9: #a0a0a0;
+}
+.el-message--success {
+    --el-message-bg-color: #232f1c !important;
+    --el-message-border-color: #092e05 !important;
+    --el-message-text-color: #23ba35 !important;
 }
 </style>
