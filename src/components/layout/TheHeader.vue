@@ -11,6 +11,9 @@
           <router-link to="/" class="fluid-nav-link dynamic-text">Home</router-link>
           <router-link to="/tournaments" class="fluid-nav-link dynamic-text">Tournaments</router-link>
           <router-link to="/about" class="fluid-nav-link dynamic-text">About Us</router-link>
+          <router-link v-if="authStore.userRole === 'admin'" to="/admin" class="fluid-nav-link dynamic-text">
+              Admin
+          </router-link>
         </div>
 
         <div class="flex items-center fluid-space-x relative">
@@ -40,7 +43,6 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
               </button>
-
               <transition>
           <div v-show="isUserDropdownOpen" @click="closeUserDropdown" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-[var(--color-primary)] ring-1 ring-[var(--color-secondary)] ring-opacity-5 focus:outline-none z-50">
             <router-link to="/profile" class="block px-4 py-2 text-sm md:text-xl text-[var(--color-text-muted)] hover:bg-[var(--color-secondary)] hover:text-[var(--color-myred)]">My Profile</router-link>

@@ -75,13 +75,13 @@
           <el-table-column prop="email" label="Email" min-width="200" />
           <el-table-column prop="role" label="Role" width="120" sortable>
             <template #default="{ row }">
-              <el-tag :type="getRoleTagType(row.role)" size="small">{{ row.role }}</el-tag>
+              <el-tag :type="getRoleTagType(row.role)" size="small" effect="dark">{{ row.role }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column prop="status" label="Status" width="120">
              <template #default="{ row }">
               <!-- Assuming 'status' field exists on user model, or derive it -->
-              <el-tag :type="row.status === 'banned' ? 'danger' : 'success'" size="small">
+              <el-tag :type="row.status === 'banned' ? 'danger' : 'success'" size="small" effect="dark">
                 {{ row.status || 'Active' }}
               </el-tag>
             </template>

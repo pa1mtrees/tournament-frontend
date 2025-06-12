@@ -25,23 +25,6 @@
             <el-icon><User /></el-icon>
             <span>User Management</span>
           </el-menu-item>
-          <el-menu-item index="/admin/tournaments" :route="{ name: 'admin-tournaments' }">
-            <el-icon><Trophy /></el-icon>
-            <span>Tournament Mgt.</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/sports" :route="{ name: 'admin-sports' }">
-            <el-icon><Football /></el-icon>
-            <span>Sports</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/formats" :route="{ name: 'admin-formats' }">
-            <el-icon><Tickets /></el-icon>
-            <span>Formats</span>
-          </el-menu-item>
-          <!-- Add more admin navigation items here -->
-          <el-menu-item index="/admin/settings" :route="{ name: 'admin-settings' }">
-            <el-icon><Setting /></el-icon>
-            <span>Settings</span>
-          </el-menu-item>
         </el-menu>
         <div class="p-4 mt-auto border-t border-gray-700 text-center">
             <el-button type="danger" plain @click="logout" class="w-full">Logout</el-button>
