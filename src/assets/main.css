@@ -1,0 +1,167 @@
+/* src/assets/main.css */
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: #171e28;
+  --color-secondary: #0f131a;
+  /* --color-primary: rgb(13, 12, 12);
+  --color-secondary: #111111; */
+  --color-myyellow: #ffb300;
+  --color-myyeldarker: #d89e18;
+  --color-myred: #de2424;
+  --color-myreddarker: #962b2b;
+  --color-myreddark: #bc4747;
+  --color-text-light: #ffffff;
+  --color-text-muted: #a0a0a0;
+  --font-poppins: 'Poppins', sans-serif;
+  --font-body: 'Poppins', sans-serif;
+  --font-display: 'Jaro', sans-serif;
+  --color-transparent: transparent;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+
+@layer utilities {
+.fluid-nav-link.router-link-exact-active {
+   color: var(--color-myred);
+   font-weight: 400;
+}
+
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.responsive-card {
+  @apply w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 2xl:w-32 2xl:h-32
+}
+.feature-card {
+  @apply bg-[var(--color-primary)] p-6 py-8 rounded-xl shadow-lg text-center flex flex-col items-center transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-2;
+}
+.feature-icon-wrapper {
+  @apply w-16 h-16 rounded-full flex items-center justify-center mb-6 p-3;
+}
+.feature-title {
+  @apply text-xl font-semibold text-[var(--color-text-light)] mb-2 font-['Jaro']; /* Используем Jaro */
+}
+.feature-description {
+  @apply text-sm text-[var(--color-text-muted)] leading-relaxed;
+}
+
+  .box-color {
+    --el-empty-fill-color-1	: var(--color-myred);
+  }
+  .animated-dot-pattern {
+    @apply bg-[radial-gradient(var(--color-myred)_1px,transparent_1px)];
+
+    @apply [background-size:16px_16px];
+
+    @apply [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)];
+
+    animation: twinkle 3s infinite alternate ease-in-out;
+  }
+  .muted-text {
+    @apply text-[var(--color-text-muted)]
+  }
+  .dynamic-text {
+    font-size: min(2vw, 25px);
+  }
+  .fluid-space-x {
+    --space-value: min(2vw, 15px);
+  }
+  .fluid-space-x-forget {
+    --space-value: min(2vw, 15px);
+  }
+  .fluid-space-x > * + * {
+    margin-left: var(--space-value);
+  }
+  .mobile-jaro {
+    font-family: var(--font-display);
+  }
+  .poppins {
+    font-family: var(--font-poppins);
+  }
+  .footer-text {
+    @apply font-poppins text-sm text-[var(--color-text-muted)] hover:text-[var(--color-myred)] transition-colors;
+  }
+  .login-button.router-link-exact-active {
+    @apply text-[var(--color-text-light)] cursor-default;
+    @apply hover:bg-[var(--color-myreddarker)];
+  }
+  .login-button{
+    @apply bg-[var(--color-myred)] text-[var(--color-primary)] px-4 py-1 rounded-[0.7vw] hover:text-[var(--color-text-light)] transition-colors;
+    @apply hover:bg-[var(--color-myreddarker)];
+  }
+  .signup-button.router-link-exact-active {
+    @apply bg-[var(--color-myyellow)] text-[var(--color-myred)] cursor-default;
+     @apply hover:bg-[var(--color-myyeldarker)];
+    }
+
+  .fluid-nav-link.router-link-exact-active {
+     color: var(--color-myyellow);
+  }
+  .select-style {
+    @apply font-poppins mt-1 block w-full pl-3 pr-10 py-1.5 text-base border border-[var(--color-secondary)] focus:outline-none focus:ring-[var(--color-myyellow)] focus:border-[var(--color-myyellow)] sm:text-sm rounded-md bg-[var(--color-secondary)] text-[var(--color-text-light)];
+  }
+  .label-style {
+    @apply font-poppins block text-xs sm:text-sm font-medium text-[var(--color-text-muted)];
+  }
+  .input-style {
+     @apply font-poppins mt-1 appearance-none block w-full px-3 py-2 border border-[var(--color-secondary)] rounded-md shadow-sm placeholder-[var(--color-text-muted)] bg-[var(--color-secondary)] text-[var(--color-text-light)] focus:outline-none focus:ring-[var(--color-myyellow)] focus:border-[var(--color-myyellow)] text-xs sm:text-sm;
+  }
+  .select-style-modal {
+    @apply font-poppins mt-1 block w-full pl-3 pr-10 py-2 border border-[var(--color-secondary)] focus:outline-none focus:ring-[var(--color-myyellow)] focus:border-[var(--color-myyellow)] text-xs sm:text-sm rounded-md bg-[var(--color-secondary)] text-[var(--color-text-light)];
+  }
+  .option-style {
+    @apply font-poppins text-[var(--color-text-light)] bg-[var(--color-secondary)] hover:bg-[var(--color-myyellow)] hover:text-[var(--color-primary)] transition-colors;
+  }
+  .jersey {
+    font-family: "Jersey 10", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+  }
+    .jersey-small {
+    font-family: "Jersey 10", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+}
+@layer base {
+  body {
+    @apply bg-[var(--color-secondary)] text-[var(--color-text-light)];
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    @apply font-normal text-[var(--color-text-light)];
+  }
+  p,
+  label,
+  input {
+    @apply font-poppins text-[var(--color-text-muted)];
+  }
+  header nav a {
+    font-family: var(--font-display);
+  }
+  .fluid-nav-link {
+    @apply text-[var(--color-text-light)] hover:text-[var(--color-myred)] transition-colors;
+  }
+  span {
+    @apply font-poppins;
+  }
+}
