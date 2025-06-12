@@ -318,13 +318,6 @@
               <div v-if="isLoadingBracket" class="text-center py-10">
                 <el-skeleton :rows="5" animated />
               </div>
-              <div v-else-if="bracketError" class="text-center py-10">
-                <el-result icon="error" title="Error Loading Bracket" :sub-title="bracketError">
-                <template #extra>
-                  <el-button type="danger" @click="fetchBracketData(props.id)">Try Again</el-button>
-                </template>
-                </el-result>
-              </div>
               <div v-else-if="bracketData">
                 <!-- Conditional rendering based on bracket_type -->
                 <template v-if="bracketData.format && bracketData.format.bracket_type === 'RoundRobin'">
@@ -450,9 +443,7 @@
             </div>
             <!-- BRACKET TAB CONTENT END -->
 
-          <div v-if="activeTab === 'results'" class="p-6 text-center text-[var(--color-text-muted)]">
-            Results section (Coming Soon)
-          </div>
+
         </div>
     </div>
     <div v-else class="text-center py-10 text-[var(--color-text-muted)]">
@@ -995,7 +986,6 @@ const tabItems = computed(() => [
   { name: 'about', label: 'About', icon: FilesIcon }, // Используем импортированную иконку FilesIcon
   { name: 'participants', label: 'Participants', icon: UserFilled, badgeContent: participantCount.value },
   { name: 'bracket', label: 'Bracket', icon: TrophyBase },
-  { name: 'results', label: 'Results', icon: ListNumbers },
 ]);
 
 // --- Modified Watchers ---
